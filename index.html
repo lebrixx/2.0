@@ -1,519 +1,681 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La meilleure version de toi - lebrix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .brand-font {
-            font-family: 'Playfair Display', serif;
-        }
-        .header-text-shadow {
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-        }
-        /* Animation pour la barre de progression de la citation */
-        @keyframes fill-progress {
-            from { width: 0%; }
-            to { width: 100%; }
-        }
-        .progress-bar-fill {
-            animation: fill-progress 10s linear infinite;
-        }
-        /* Styles pour les fenêtres modales */
-        .modal-overlay {
-            transition: opacity 0.3s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s ease;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>La meilleure version de toi - lebrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root { color-scheme: light; }
+    html,body { height:100%; }
+    body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:#0f172a; }
+    .brand-font { font-family: 'Playfair Display', serif; }
+    .header-text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,.4); }
+
+    /* Chrono plus grand et sur une seule ligne */
+    #chrono {
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: baseline;
+      gap: .5rem;
+      line-height: 1;
+      font-size: clamp(2rem, 4.5vw + .5rem, 3.75rem);
+      letter-spacing: .01em;
+    }
+    #chrono .u { font-size: .75em; color: #64748b; }
+
+    /* Pop-up pro */
+    .modal-overlay { transition: opacity .25s ease; }
+    .modal-card { transition: transform .22s ease, opacity .22s ease, box-shadow .22s ease; }
+    .modal-card.show { transform: translateY(0); opacity: 1; }
+    .modal-card.hide { transform: translateY(12px); opacity: 0; }
+
+    /* Chips d’habitudes : état très lisible */
+    .chip {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+      padding: .75rem .9rem;
+      border-radius: .75rem;
+      border: 2px solid rgb(226,232,240); /* slate-200 */
+      background: white;
+      color: rgb(51,65,85); /* slate-700 */
+      transition: border-color .18s ease, box-shadow .18s ease, transform .08s ease, background .18s ease, color .18s ease;
+    }
+    .chip:hover { border-color: rgb(203,213,225); box-shadow: 0 2px 10px rgba(2,6,23,.06); }
+    .chip:active { transform: scale(.98); }
+    .chip .tick {
+      width: 22px; height: 22px; border-radius: 9999px;
+      border: 2px solid rgb(203,213,225);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      transition: all .18s ease;
+      background: white;
+      color: transparent;
+    }
+    .chip.selected {
+      border-color: rgb(79,70,229); /* indigo-600 */
+      box-shadow: 0 0 0 4px rgba(79,70,229,.12);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: rgb(17,24,39); /* slate-900 */
+    }
+    .chip.selected .tick {
+      background: rgb(79,70,229);
+      border-color: rgb(79,70,229);
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 1px 6px rgba(79,70,229,.45);
+    }
+    @keyframes pop {
+      0% { transform: scale(.96); }
+      100% { transform: scale(1); }
+    }
+    .chip.pop { animation: pop .12s ease-out; }
+
+    /* Compteur de sélection */
+    .select-counter {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="text-slate-800">
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
-
-        <!-- Header avec image de fond -->
-        <header class="relative bg-slate-800 text-white text-center rounded-xl shadow-lg overflow-hidden mb-8">
-            <img src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?q=80&w=2574&auto=format&fit=crop" 
-                 class="absolute h-full w-full object-cover opacity-40" 
-                 alt="Paysage de montagne inspirant au lever du soleil"
-                 onerror="this.style.display='none'">
-            <div class="relative p-12 sm:p-16">
-                <h1 id="main-title" class="text-4xl sm:text-5xl font-bold header-text-shadow brand-font leading-tight">La meilleure version de toi</h1>
-                <p class="text-lg text-slate-200 mt-4 header-text-shadow">lebrix</p>
-                <!-- Bouton Défi du Jour -->
-                <div class="mt-6">
-                    <button id="openChallengeBtn" class="px-6 py-3 bg-white bg-opacity-20 text-white font-bold rounded-lg hover:bg-opacity-30 transition duration-300 shadow-lg transform hover:scale-105 backdrop-blur-sm border border-white border-opacity-20">
-                        <i class="fas fa-star mr-2"></i> Défi du Jour
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Section Parcours (Chronomètre + Objectifs) -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-semibold text-slate-800 mb-2 text-center">Votre Parcours de Transformation</h2>
-            <p class="text-sm text-slate-500 mb-6 text-center italic">Le temps écoulé depuis votre engagement et les paliers que vous avez franchis.</p>
-            
-            <!-- Chronomètre -->
-            <div class="text-center">
-                <div id="chrono" class="text-3xl sm:text-4xl font-bold text-slate-700 tracking-wider">
-                    <span id="months">0</span><span class="text-xl text-slate-500">mois</span> 
-                    <span id="days">0</span><span class="text-xl text-slate-500">j</span> 
-                    <span id="hours">00</span><span class="text-xl text-slate-500">h</span> 
-                    <span id="minutes">00</span><span class="text-xl text-slate-500">m</span> 
-                    <span id="seconds">00</span><span class="text-xl text-slate-500">s</span>
-                </div>
-            </div>
-
-            <!-- Séparateur -->
-            <hr class="my-6 border-slate-200">
-
-            <!-- Frise Chronologique des Paliers -->
-            <div>
-                <h3 class="text-lg font-semibold text-slate-700 mb-8 text-center">Frise de Constance</h3>
-                <div id="timeline-container" class="relative w-full h-16 flex items-center px-2">
-                    <!-- Ligne de fond -->
-                    <div class="absolute w-full h-1 bg-slate-200 rounded-full left-0"></div>
-                    <!-- Ligne de progression -->
-                    <div id="timeline-progress" class="absolute h-1 bg-slate-600 rounded-full left-0 transition-all duration-1000 ease-linear"></div>
-                    <!-- Indicateur de pourcentage -->
-                    <div id="timeline-percentage" class="absolute bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded-md -top-10 transition-all duration-1000 ease-linear whitespace-nowrap" style="left: 0%;">0%</div>
-                    <!-- Conteneur pour les points/paliers -->
-                    <div id="timeline-nodes" class="relative w-full flex justify-between items-center">
-                        <!-- Les paliers seront générés par JavaScript -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bouton Reset -->
-            <div class="text-center mt-12">
-                <button id="resetChronoBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm shadow-sm">
-                    <i class="fas fa-undo mr-2"></i>Réinitialiser le Parcours
-                </button>
-            </div>
+  <div id="main-content" class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
+    <!-- Header -->
+    <header class="relative bg-slate-800 text-white text-center rounded-xl shadow-lg overflow-hidden mb-8">
+      <img src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?q=80&w=2574&auto=format&fit=crop"
+           class="absolute h-full w-full object-cover opacity-40"
+           alt="Paysage inspirant"
+           onerror="this.style.display='none'">
+      <div class="relative p-12 sm:p-16">
+        <h1 id="main-title" class="text-4xl sm:text-5xl font-bold header-text-shadow brand-font leading-tight">
+          La meilleure version de toi
+        </h1>
+        <p class="text-lg text-slate-200 mt-4 header-text-shadow">lebrix</p>
+        <div class="mt-6">
+          <button id="openChallengeBtn" class="px-6 py-3 bg-white bg-opacity-20 text-white font-bold rounded-lg hover:bg-opacity-30 transition duration-300 shadow-lg transform hover:scale-105 backdrop-blur-sm border border-white border-opacity-20">
+            <i class="fas fa-star mr-2"></i> Défi du Jour
+          </button>
         </div>
+      </div>
+    </header>
 
-        <!-- Section Citation statique -->
-        <footer class="my-8 text-center">
-            <p class="text-xl italic text-slate-600">"Comment rendre fiers tes proches si tu n'es pas d'abord fier de toi-même ?"</p>
-        </footer>
+    <!-- Parcours -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <h2 class="text-2xl font-semibold text-slate-800 mb-2 text-center">Votre Parcours de Transformation</h2>
+      <p class="text-sm text-slate-500 mb-6 text-center italic">Le temps écoulé depuis votre engagement et les paliers franchis.</p>
 
-        <!-- Liste de Tâches clarifiée -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex justify-between items-center mb-1">
-                <h2 class="text-2xl font-semibold text-slate-800">Mes Habitudes Quotidiennes</h2>
-                <button id="resetTasksBtn" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition duration-300 text-sm">
-                    <i class="fas fa-sync-alt mr-2"></i>Nouvelle journée
-                </button>
-            </div>
-             <p class="text-sm text-slate-500 mb-6 italic">Cochez vos actions pour construire la discipline.</p>
-            
-            <ul id="taskList" class="space-y-3">
-                <!-- Les tâches seront ajoutées ici par JavaScript -->
-            </ul>
-
-            <!-- Ajouter une nouvelle tâche -->
-            <div class="mt-6 pt-6 border-t border-slate-200">
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="newTaskInput" placeholder="Ajouter une nouvelle habitude..." class="flex-grow p-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 transition">
-                    <button id="addTaskBtn" class="w-full sm:w-auto px-6 py-3 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-800 transition duration-300 shadow-sm">
-                        Ajouter
-                    </button>
-                </div>
-            </div>
+      <!-- Chrono -->
+      <div class="text-center">
+        <div id="chrono" class="mx-auto">
+          <span id="months">0</span><span class="u">mois</span>
+          <span id="days">0</span><span class="u">j</span>
+          <span id="hours">00</span><span class="u">h</span>
+          <span id="minutes">00</span><span class="u">m</span>
+          <span id="seconds">00</span><span class="u">s</span>
         </div>
-        
-        <!-- Section Citation dynamique -->
-        <div class="mt-12 text-center border-t border-slate-300 pt-8">
-             <div id="dynamic-quote-container" class="min-h-[150px] flex flex-col justify-center">
-                <div>
-                    <p id="quote-text" class="text-xl italic text-slate-700"></p>
-                    <p id="quote-author" class="text-md text-slate-500 mt-2"></p>
-                </div>
-                <!-- Indicateur de progression de la citation -->
-                <div class="w-24 h-1 bg-slate-200 rounded-full mx-auto mt-4 overflow-hidden">
-                    <div id="quote-progress-bar" class="h-1 bg-slate-500 rounded-full"></div>
-                </div>
-            </div>
-        </div>
+      </div>
 
-        <!-- Section Philosophie -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mt-12">
-            <h2 class="text-2xl font-semibold text-slate-800 mb-4 text-center brand-font">La Philosophie de cet Espace</h2>
-            <div class="text-slate-600 space-y-4 text-center max-w-2xl mx-auto">
-                <p>Ce compteur n'est pas qu'un simple chronomètre. C'est le témoin silencieux de votre engagement envers vous-même. Pour certains, il symbolise les jours sans une addiction. Pour d'autres, il marque le début d'une nouvelle discipline, d'un nouveau départ, ou la poursuite d'un rêve longtemps oublié. La signification vous appartient.</p>
-                <p>Cet espace a été créé avec une conviction simple : le changement se construit avec différents outils. Le <b>Chrono</b> mesure votre engagement sur le long terme. Les <b>Habitudes Quotidiennes</b> sont les fondations : elles forgent votre discipline et restaurent votre confiance jour après jour. Le <b>Défi du Jour</b>, lui, est l'étincelle qui vous pousse à sortir de votre zone de confort. Ces trois outils sont indépendants, mais leur but est le même : vous aider à visualiser et célébrer chaque pas dans la construction de la meilleure version de vous-même.</p>
-            </div>
+      <hr class="my-6 border-slate-200">
+
+      <!-- Frise -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-700 mb-8 text-center">Frise de Constance</h3>
+        <div id="timeline-container" class="relative w-full h-16 flex items-center px-2">
+          <div class="absolute w-full h-1 bg-slate-200 rounded-full left-0"></div>
+          <div id="timeline-progress" class="absolute h-1 bg-slate-600 rounded-full left-0 transition-all duration-1000 ease-linear"></div>
+          <div id="timeline-percentage" class="absolute bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded-md -top-10 transition-all duration-1000 ease-linear whitespace-nowrap" style="left:0%;transform:translateX(-50%);">0%</div>
+          <div id="timeline-nodes" class="relative w-full flex justify-between items-center"></div>
         </div>
+      </div>
+
+      <!-- Reset -->
+      <div class="text-center mt-12">
+        <button id="resetChronoBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm shadow-sm">
+          <i class="fas fa-undo mr-2"></i>Réinitialiser le Parcours
+        </button>
+      </div>
     </div>
 
-    <!-- Fenêtre Modale pour le Défi du Jour -->
-    <div id="challengeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden opacity-0 modal-overlay">
-        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-center transform scale-95 modal-content">
-            <h2 class="text-2xl font-bold text-slate-800 brand-font">Votre Défi du Jour</h2>
-            <p id="challengeText" class="text-slate-600 mt-4 mb-6 text-lg"></p>
-            <button id="completeChallengeBtn" class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300 shadow-sm">
-                <i class="fas fa-check mr-2"></i> J'ai réussi !
-            </button>
-            <div class="mt-4">
-                <p class="text-sm text-slate-500">Série de constance : <span id="streakCounter" class="font-bold text-slate-700">0</span> jours</p>
-                <p class="text-xs text-slate-400 mt-1">Temps restant pour ne pas briser la série : <span id="challengeTimer" class="font-bold"></span></p>
-            </div>
-            <button id="closeChallengeBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
+    <!-- Citation -->
+    <footer class="my-8 text-center">
+      <p class="text-xl italic text-slate-600">"Comment rendre fiers tes proches si tu n'es pas d'abord fier de toi-même ?"</p>
+    </footer>
+
+    <!-- Habitudes -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="flex justify-between items-center mb-1">
+        <h2 class="text-2xl font-semibold text-slate-800">Mes Habitudes Quotidiennes</h2>
+        <button id="resetTasksBtn" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition duration-300 text-sm">
+          <i class="fas fa-sync-alt mr-2"></i>Nouvelle journée
+        </button>
+      </div>
+      <p class="text-sm text-slate-500 mb-6 italic">Coche tes actions pour construire la discipline. Tu peux modifier/ajouter/supprimer quand tu veux.</p>
+
+      <ul id="taskList" class="space-y-3"></ul>
+
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="text" id="newTaskInput" placeholder="Ajouter une nouvelle habitude..." class="flex-grow p-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 transition">
+          <button id="addTaskBtn" class="w-full sm:w-auto px-6 py-3 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-800 transition duration-300 shadow-sm">Ajouter</button>
         </div>
+      </div>
     </div>
 
-    <!-- Fenêtre Modale de Confirmation -->
-    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden opacity-0 modal-overlay">
-        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-sm text-center transform scale-95 modal-content">
-            <h2 id="confirmationTitle" class="text-xl font-bold text-slate-800"></h2>
-            <p id="confirmationMessage" class="text-slate-600 mt-2 mb-6"></p>
-            <div class="flex justify-center gap-4">
-                <button id="confirmBtn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300">Confirmer</button>
-                <button id="cancelBtn" class="px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition duration-300">Annuler</button>
-            </div>
+    <!-- Citation dynamique -->
+    <div class="mt-12 text-center border-t border-slate-300 pt-8">
+      <div id="dynamic-quote-container" class="min-h-[150px] flex flex-col justify-center">
+        <div>
+          <p id="quote-text" class="text-xl italic text-slate-700"></p>
+          <p id="quote-author" class="text-md text-slate-500 mt-2"></p>
         </div>
+        <div class="w-24 h-1 bg-slate-200 rounded-full mx-auto mt-4 overflow-hidden">
+          <div id="quote-progress-bar" class="h-1 bg-slate-500 rounded-full"></div>
+        </div>
+      </div>
     </div>
 
+    <!-- Philosophie -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mt-12">
+      <h2 class="text-2xl font-semibold text-slate-800 mb-4 text-center brand-font">La Philosophie de cet Espace</h2>
+      <div class="text-slate-600 space-y-4 text-center max-w-2xl mx-auto">
+        <p>Ce compteur n'est pas qu'un simple chronomètre. Il témoigne de votre engagement envers vous-même.</p>
+        <p>Le <b>Chrono</b> mesure l'engagement long terme. Les <b>Habitudes Quotidiennes</b> forgent la discipline. Le <b>Défi du Jour</b> vous pousse à sortir de votre zone de confort.</p>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- ÉLÉMENTS DU DOM ---
-            const monthsEl = document.getElementById('months');
-            const daysEl = document.getElementById('days');
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-            const resetChronoBtn = document.getElementById('resetChronoBtn');
-            const taskList = document.getElementById('taskList');
-            const newTaskInput = document.getElementById('newTaskInput');
-            const addTaskBtn = document.getElementById('addTaskBtn');
-            const resetTasksBtn = document.getElementById('resetTasksBtn');
-            const timelineNodesContainer = document.getElementById('timeline-nodes');
-            const timelineProgress = document.getElementById('timeline-progress');
-            const timelinePercentage = document.getElementById('timeline-percentage');
-            const quoteTextEl = document.getElementById('quote-text');
-            const quoteAuthorEl = document.getElementById('quote-author');
-            const quoteProgressBar = document.getElementById('quote-progress-bar');
-            const openChallengeBtn = document.getElementById('openChallengeBtn');
-            const challengeModal = document.getElementById('challengeModal');
-            const challengeText = document.getElementById('challengeText');
-            const completeChallengeBtn = document.getElementById('completeChallengeBtn');
-            const streakCounter = document.getElementById('streakCounter');
-            const closeChallengeBtn = document.getElementById('closeChallengeBtn');
-            const challengeTimerEl = document.getElementById('challengeTimer');
-            const confirmationModal = document.getElementById('confirmationModal');
-            const confirmationTitle = document.getElementById('confirmationTitle');
-            const confirmationMessage = document.getElementById('confirmationMessage');
-            const confirmBtn = document.getElementById('confirmBtn');
-            const cancelBtn = document.getElementById('cancelBtn');
+  <!-- POP-UP (modale) pro pour les nouveaux -->
+  <div id="onboardingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-overlay opacity-0 pointer-events-none">
+    <div class="modal-card hide bg-white w-full max-w-xl mx-4 rounded-2xl shadow-2xl overflow-hidden">
+      <!-- Bandeau motivant -->
+      <div class="bg-gradient-to-r from-indigo-600 to-sky-600 text-white px-6 py-5">
+        <h3 class="text-lg font-semibold brand-font">Bravo — tu as fait le plus compliqué : <span class="underline decoration-white/60">commencer</span>.</h3>
+        <p class="text-white/90 text-sm mt-1">On personnalise l’espace en 15 secondes.</p>
+      </div>
 
-            let challengeInterval = null;
-            let confirmCallback = null;
-            let tasks = [];
-            let startTime = localStorage.getItem('chronoStartTime');
+      <!-- Corps -->
+      <div class="p-6 sm:p-7">
+        <label for="name-input" class="block text-sm font-medium text-slate-700">Ton prénom</label>
+        <input id="name-input" type="text" placeholder="Ex. Alex"
+               class="mt-2 w-full p-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600">
 
-            // --- Fonctions ---
+        <div class="mt-6 flex items-baseline justify-between">
+          <p class="text-sm font-medium text-slate-700">Choisis <b>2 à 3</b> habitudes de départ</p>
+          <span id="selectCounter" class="text-xs text-slate-500 select-counter">0/3</span>
+        </div>
 
-            function showConfirmationModal(title, message, onConfirm, confirmText = 'Confirmer', cancelText = 'Annuler') {
-                confirmationTitle.textContent = title;
-                confirmationMessage.textContent = message;
-                confirmBtn.textContent = confirmText;
-                cancelBtn.textContent = cancelText;
-                confirmCallback = onConfirm;
-                confirmationModal.classList.remove('hidden');
-                setTimeout(() => {
-                    confirmationModal.classList.remove('opacity-0');
-                    confirmationModal.querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
-            }
+        <div id="habitChoices" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- chips injectées via JS -->
+        </div>
 
-            function hideConfirmationModal() {
-                confirmationModal.classList.add('opacity-0');
-                confirmationModal.querySelector('.modal-content').classList.add('scale-95');
-                setTimeout(() => confirmationModal.classList.add('hidden'), 300);
-            }
+        <p class="text-xs text-slate-500 mt-3 italic">Tu pourras les modifier, en ajouter ou en supprimer ensuite.</p>
 
-            function updateChrono() {
-                const now = new Date().getTime();
-                const elapsedTime = now - startTime;
-                const avgDaysInMonth = 30.4375;
-                const totalDaysRaw = elapsedTime / (1000 * 60 * 60 * 24);
-                const months = Math.floor(totalDaysRaw / avgDaysInMonth);
-                const days = Math.floor(totalDaysRaw % avgDaysInMonth);
-                const hours = Math.floor((elapsedTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-                monthsEl.textContent = months;
-                daysEl.textContent = days;
-                hoursEl.textContent = String(hours).padStart(2, '0');
-                minutesEl.textContent = String(minutes).padStart(2, '0');
-                secondsEl.textContent = String(seconds).padStart(2, '0');
-                updateTimeline(elapsedTime);
-            }
+        <div id="errorMsg" class="hidden mt-3 text-sm text-red-600">Renseigne ton prénom et choisis 2 à 3 habitudes.</div>
 
-            function saveTasks() {
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-            }
+        <button id="startBtn"
+                class="mt-6 w-full px-6 py-3 bg-slate-900 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+          Enregistrer et commencer
+        </button>
+      </div>
+    </div>
+  </div>
 
-            function renderTasks() {
-                taskList.innerHTML = '';
-                if (tasks.length === 0) {
-                    taskList.innerHTML = '<p class="text-slate-500 text-center py-4">Aucune habitude pour le moment. Ajoutez-en une !</p>';
-                    return;
-                }
-                tasks.forEach((task, index) => {
-                    const li = document.createElement('li');
-                    li.className = `task-item flex items-center bg-slate-50 p-3 rounded-lg transition duration-300 hover:bg-slate-100 ${task.checked ? 'opacity-60' : ''}`;
-                    li.innerHTML = `<input type="checkbox" id="task-${index}" class="h-5 w-5 rounded border-slate-300 text-slate-600 focus:ring-slate-500 cursor-pointer" ${task.checked ? 'checked' : ''}><label for="task-${index}" class="ml-3 flex-grow text-slate-700 cursor-pointer ${task.checked ? 'line-through text-slate-400' : ''}">${task.text}</label><button class="delete-btn text-red-500 ml-2 hover:text-red-700 transition-colors duration-200" data-index="${index}"><i class="fas fa-trash-alt"></i></button>`;
-                    taskList.appendChild(li);
-                    const checkbox = li.querySelector('input[type="checkbox"]');
-                    checkbox.addEventListener('change', () => {
-                        tasks[index].checked = checkbox.checked;
-                        saveTasks();
-                        renderTasks();
-                    });
-                    const deleteBtn = li.querySelector('.delete-btn');
-                    deleteBtn.addEventListener('click', () => {
-                        tasks.splice(index, 1);
-                        saveTasks();
-                        renderTasks();
-                    });
-                });
-            }
+  <!-- Modale Défi -->
+  <div id="challengeModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4 z-50 hidden modal-overlay opacity-0">
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-center transform scale-95 modal-content">
+      <h2 class="text-2xl font-bold text-slate-800 brand-font">Votre Défi du Jour</h2>
+      <p id="challengeText" class="text-slate-600 mt-4 mb-6 text-lg"></p>
+      <button id="completeChallengeBtn" class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300 shadow-sm">
+        <i class="fas fa-check mr-2"></i> J'ai réussi !
+      </button>
+      <div class="mt-4">
+        <p class="text-sm text-slate-500">Série de constance : <span id="streakCounter" class="font-bold text-slate-700">0</span> jours</p>
+        <p class="text-xs text-slate-400 mt-1">Temps restant pour ne pas briser la série : <span id="challengeTimer" class="font-bold"></span></p>
+      </div>
+      <button id="closeChallengeBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600">
+        <i class="fas fa-times fa-lg"></i>
+      </button>
+    </div>
+  </div>
 
-            function addTask() {
-                const text = newTaskInput.value.trim();
-                if (text) {
-                    tasks.push({ text: text, checked: false });
-                    newTaskInput.value = '';
-                    saveTasks();
-                    renderTasks();
-                }
-            }
+  <!-- Modale Confirmation (inchangée) -->
+  <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4 z-50 hidden modal-overlay opacity-0">
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-sm text-center transform scale-95 modal-content">
+      <h2 id="confirmationTitle" class="text-xl font-bold text-slate-800"></h2>
+      <p id="confirmationMessage" class="text-slate-600 mt-2 mb-6"></p>
+      <div class="flex justify-center gap-4">
+        <button id="confirmBtn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300">Confirmer</button>
+        <button id="cancelBtn" class="px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition duration-300">Annuler</button>
+      </div>
+    </div>
+  </div>
 
-            const objectives = [
-                { label: '1 Jour', duration: 1000 * 60 * 60 * 24 }, { label: '1 Sem.', duration: 1000 * 60 * 60 * 24 * 7 }, { label: '2 Sem.', duration: 1000 * 60 * 60 * 24 * 14 }, { label: '3 Sem.', duration: 1000 * 60 * 60 * 24 * 21 }, { label: '1 Mois', duration: 1000 * 60 * 60 * 24 * 30.4375 }, { label: '6 Mois', duration: 1000 * 60 * 60 * 24 * 30.4375 * 6 }, { label: '1 An', duration: 1000 * 60 * 60 * 24 * 365.25 }
-            ];
+  <script>
+  (function(){
+    "use strict";
 
-            function renderTimelineStructure() {
-                timelineNodesContainer.innerHTML = '';
-                objectives.forEach((obj, index) => {
-                    const nodeEl = document.createElement('div');
-                    nodeEl.className = 'relative flex flex-col items-center';
-                    const labelPositionClass = index % 2 === 0 ? '-bottom-7' : '-top-7';
-                    nodeEl.innerHTML = `<div id="timeline-node-${index}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div><span class="absolute ${labelPositionClass} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>`;
-                    timelineNodesContainer.appendChild(nodeEl);
-                });
-            }
+    // Utils
+    const $ = (sel, ctx=document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+    const ls = {
+      get: (k, fb=null) => {
+        const v = localStorage.getItem(k);
+        if (v===null || v===undefined) return fb;
+        try { return JSON.parse(v); } catch { return v; }
+      },
+      set: (k, v) => localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)),
+      del: (k) => localStorage.removeItem(k)
+    };
 
-            function updateTimeline(elapsedTime) {
-                const oneYearDuration = objectives[objectives.length - 1].duration;
-                const progressPercentage = Math.min(100, (elapsedTime / oneYearDuration) * 100);
-                timelineProgress.style.width = `${progressPercentage}%`;
+    // DOM principaux
+    const mainTitle = $('#main-title');
+    const taskList = $('#taskList');
+    const newTaskInput = $('#newTaskInput');
+    const addTaskBtn = $('#addTaskBtn');
+    const resetTasksBtn = $('#resetTasksBtn');
 
-                if (elapsedTime >= oneYearDuration) {
-                    timelinePercentage.style.left = '100%';
-                    timelinePercentage.style.transform = 'translateX(-100%)';
-                    timelinePercentage.textContent = "Complété !";
-                    objectives.forEach((obj, index) => {
-                        document.getElementById(`timeline-node-${index}`).classList.add('bg-slate-600');
-                        document.getElementById(`timeline-node-${index}`).classList.remove('bg-slate-200');
-                    });
-                    return;
-                }
+    // Chrono
+    const monthsEl = $('#months'), daysEl = $('#days'), hoursEl = $('#hours'), minutesEl = $('#minutes'), secondsEl = $('#seconds');
+    const resetChronoBtn = $('#resetChronoBtn');
 
-                let lastObjectiveDuration = 0;
-                let nextObjective = objectives[0];
+    // Timeline
+    const timelineNodesContainer = $('#timeline-nodes');
+    const timelineProgress = $('#timeline-progress');
+    const timelinePercentage = $('#timeline-percentage');
 
-                for (let i = 0; i < objectives.length; i++) {
-                     const node = document.getElementById(`timeline-node-${i}`);
-                    if (elapsedTime >= objectives[i].duration) {
-                        lastObjectiveDuration = objectives[i].duration;
-                        if (i + 1 < objectives.length) {
-                           nextObjective = objectives[i+1];
-                        }
-                        node.classList.remove('bg-slate-200');
-                        node.classList.add('bg-slate-600');
-                    } else {
-                        node.classList.add('bg-slate-200');
-                        node.classList.remove('bg-slate-600');
-                    }
-                }
-                
-                const timeForThisSegment = nextObjective.duration - lastObjectiveDuration;
-                const elapsedInThisSegment = elapsedTime - lastObjectiveDuration;
-                const segmentPercentage = Math.min(100, (elapsedInThisSegment / timeForThisSegment) * 100);
+    // Défi
+    const openChallengeBtn = $('#openChallengeBtn');
+    const challengeModal = $('#challengeModal');
+    const challengeText = $('#challengeText');
+    const completeChallengeBtn = $('#completeChallengeBtn');
+    const streakCounter = $('#streakCounter');
+    const closeChallengeBtn = $('#closeChallengeBtn');
+    const challengeTimerEl = $('#challengeTimer');
 
-                timelinePercentage.textContent = `${Math.floor(segmentPercentage)}% vers ${nextObjective.label}`;
-                timelinePercentage.style.left = `${progressPercentage}%`;
-                timelinePercentage.style.transform = `translateX(-${progressPercentage}%)`;
-            }
+    // Onboarding (pop-up)
+    const onboardingModal = $('#onboardingModal');
+    const modalCard = onboardingModal.querySelector('.modal-card');
+    const nameInput = $('#name-input');
+    const habitChoices = $('#habitChoices');
+    const startBtn = $('#startBtn');
+    const errorMsg = $('#errorMsg');
+    const selectCounter = $('#selectCounter');
 
-            const challenges = [
-                "Fais ton max de pompes.", "Tiens la position de la planche le plus longtemps possible.", "Apprends un nouveau mot et sa définition.", "Bois 2 litres d'eau dans la journée.", "Fais un compliment sincère à quelqu'un.", "Range et organise ta chambre pendant 15 minutes.", "Écris ton plus grand rêve et 3 actions concrètes pour t'en approcher.", "Écoute une musique apaisante, les yeux fermés, sans rien faire d'autre.", "Liste 5 choses que tu aimerais absolument faire dans ta vie.", "Prends des nouvelles d'un proche que tu n'as pas contacté depuis longtemps.", "Fais 10 minutes d'étirements complets.", "Sors marcher 15 minutes sans musique ni podcast, juste en observant.", "Écris 3 choses positives qui te sont arrivées aujourd'hui.", "Accomplis une petite tâche que tu repousses depuis plusieurs jours.", "Lis 10 pages d'un livre, quel qu'il soit.", "Identifie une de tes mauvaises habitudes et réfléchis à une alternative positive.", "Identifie une compétence que tu aimerais apprendre et regarde une vidéo d'introduction de 10 minutes à ce sujet.", "Fais un exercice de respiration profonde pendant 3 minutes.", "Écris une chose intéressante que tu as apprise aujourd'hui.", "Fixe-toi un seul objectif réalisable pour demain et écris-le.", "Passe 15 minutes sans aucun écran avant de dormir."
-            ];
+    // État
+    let tasks = [];
+    let startTime = Number(ls.get('chronoStartTime'));
+    if (!startTime || Number.isNaN(startTime)) {
+      startTime = Date.now();
+      ls.set('chronoStartTime', String(startTime));
+    }
 
-            function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
+    // Habitudes proposées (4 + 3 nouvelles)
+    const HABITS_PRESET = [
+      "Boire de l'eau",
+      "Méditer 10 minutes",
+      "Faire son lit",
+      "Ranger sa chambre",
+      "Lire 10 pages",
+      "Marcher 15 min",
+      "Respirer 3 minutes"
+    ];
 
-            function getChallengeForToday() {
-                const epochDays = Math.floor(Date.now() / 86400000);
-                const challengeIndex = epochDays % challenges.length;
-                return challenges[challengeIndex];
-            }
+    // ----- Pop-up -----
+    function renderHabitChoices(){
+      habitChoices.innerHTML = '';
+      HABITS_PRESET.forEach(text => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip';
+        btn.setAttribute('aria-pressed','false');
+        btn.innerHTML = `<span class="tick"><i class="fas fa-check"></i></span><span class="label">${text}</span>`;
+        btn.dataset.selected = 'false';
 
-            function updateChallengeTimer() {
-                const now = new Date();
-                const tomorrow = new Date(now);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                tomorrow.setHours(0, 0, 0, 0);
-                const diff = tomorrow - now;
-                const hours = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-                challengeTimerEl.textContent = `${hours}:${minutes}:${seconds}`;
-            }
-            
-            function getChallengeData() {
-                try {
-                    const storedData = localStorage.getItem('challengeData');
-                    return storedData ? JSON.parse(storedData) : { lastCompleted: null, streak: 0 };
-                } catch (e) {
-                    console.error("Erreur lors de la lecture des données du défi, réinitialisation.", e);
-                    return { lastCompleted: null, streak: 0 };
-                }
-            }
+        btn.addEventListener('click', () => {
+          const currentlySelected = btn.dataset.selected === 'true';
+          const selectedCount = $$('#habitChoices .chip').filter(c => c.dataset.selected === 'true').length;
 
-            function updateChallengeUI() {
-                const today = getTodayDateString();
-                const challengeData = getChallengeData();
-                challengeText.textContent = getChallengeForToday();
-                streakCounter.textContent = challengeData.streak;
-                if (challengeData.lastCompleted === today) {
-                    completeChallengeBtn.disabled = true;
-                    completeChallengeBtn.textContent = "Défi du jour accompli !";
-                    completeChallengeBtn.classList.replace('bg-green-600', 'bg-slate-400');
-                    completeChallengeBtn.classList.replace('hover:bg-green-700', 'hover:bg-slate-400');
-                } else {
-                    completeChallengeBtn.disabled = false;
-                    completeChallengeBtn.innerHTML = '<i class="fas fa-check mr-2"></i> J\'ai réussi !';
-                    completeChallengeBtn.classList.replace('bg-slate-400', 'bg-green-600');
-                    completeChallengeBtn.classList.replace('hover:bg-slate-400', 'hover:bg-green-700');
-                }
-            }
+          // Sélection max 3
+          if (!currentlySelected && selectedCount >= 3) return;
 
-            const quotes = [
-                { text: "Connais-toi toi-même.", author: "Socrate" }, { text: "Vous devez être le changement que vous voulez voir dans le monde.", author: "Mahatma Gandhi" }, { text: "Ce n’est pas parce que les choses sont difficiles que nous n’osons pas, c’est parce que nous n’osons pas qu’elles sont difficiles.", author: "Sénèque" }, { text: "Le plus grand échec est de ne pas avoir le courage d’oser.", author: "Abbé Pierre" }, { text: "Ne jugez pas chaque jour à la récolte que vous faites, mais aux graines que vous semez.", author: "Robert Louis Stevenson" }, { text: "Ce que vous pensez, vous le devenez. Ce que vous ressentez, vous l’attirez. Ce que vous imaginez, vous le créez.", author: "Bouddha" }, { text: "Croyez en vos rêves et ils se réaliseront peut-être. Croyez en vous et ils se réaliseront sûrement.", author: "Martin Luther King Jr." }, { text: "La seule limite à notre épanouissement de demain sera nos doutes d’aujourd’hui.", author: "Franklin D. Roosevelt" }, { text: "Celui qui déplace une montagne commence par déplacer de petites pierres.", author: "Confucius" }, { text: "La vie, c’est comme une bicyclette, il faut avancer pour ne pas perdre l’équilibre.", author: "Albert Einstein" }, { text: "Le succès, c’est se promener d’échecs en échecs tout en restant motivé.", author: "Winston Churchill" }, { text: "Choisis un travail que tu aimes et tu n’auras jamais à travailler un seul jour de ta vie.", author: "Confucius" }, { text: "Le succès n’est pas la clé du bonheur. Le bonheur est la clé du succès.", author: "Albert Schweitzer" }, { text: "Je n’échoue jamais. Soit je gagne, soit j’apprends.", author: "Nelson Mandela" }, { text: "Tout ce que l’esprit de l’homme peut concevoir et croire, il peut l’accomplir.", author: "Napoleon Hill" }, { text: "Le succès consiste à aller d’échec en échec sans perdre son enthousiasme.", author: "Winston Churchill" }, { text: "Ce n’est pas la chance qui fait les grands, c’est la constance.", author: "Robin Sharma" }, { text: "Les gagnants trouvent des moyens, les perdants des excuses.", author: "F. D. Roosevelt (attribuée)" }, { text: "Les rêves ne fonctionnent que si vous travaillez dur.", author: "John C. Maxwell" }, { text: "Commencez là où vous êtes. Utilisez ce que vous avez. Faites ce que vous pouvez.", author: "Arthur Ashe" }, { text: "Ce n’est pas parce que les autres doutent de toi que tu dois les croire.", author: "Anonyme" }, { text: "Le plus grand obstacle à la réussite, c’est la peur de l’échec.", author: "Sven Goran Eriksson" }, { text: "Personne ne peut vous faire sentir inférieur sans votre consentement.", author: "Eleanor Roosevelt" }, { text: "C’est dans l’effort que l’on trouve la satisfaction, non dans la réussite. Un plein effort est une pleine victoire.", author: "Mahatma Gandhi" }, { text: "Travaille dur en silence, et laisse ton succès faire du bruit.", author: "Frank Ocean (attribuée)" }, { text: "Celui qui n’a jamais fait d’erreur n’a jamais rien essayé de nouveau.", author: "Albert Einstein" }, { text: "Plus on s’élève, plus on paraît petit à ceux qui ne savent pas voler.", author: "Friedrich Nietzsche" }, { text: "C’est en essayant encore et encore que le singe apprend à bondir.", author: "Proverbe africain" }, { text: "La discipline est le pont entre les objectifs et leur réalisation.", author: "Jim Rohn" }, { text: "Ce que tu évites te contrôle.", author: "Carl Jung" }, { text: "Ils ne savaient pas que c’était impossible, alors ils l’ont fait.", author: "Mark Twain" }, { text: "Fais-le, et si tu as peur, fais-le avec la peur.", author: "Anonyme" }, { text: "Rêver grand. Commencer petit. Agir maintenant.", author: "Robin Sharma" }, { text: "N’attends pas la motivation. Agis, et la motivation viendra.", author: "Mel Robbins" }, { text: "La réussite appartient à ceux qui se lèvent tôt… et n’abandonnent jamais.", author: "Napoleon Hill" }, { text: "Le succès, c’est avoir ce que vous voulez. Le bonheur, c’est aimer ce que vous avez.", author: "H. Jackson Brown Jr." }, { text: "Tout le monde veut briller, mais personne ne veut transpirer.", author: "Anonyme" }, { text: "Tu ne peux pas battre quelqu’un qui n’abandonne jamais.", author: "Babe Ruth" }, { text: "Le talent te fait commencer. La discipline te fait finir.", author: "Zig Ziglar" }, { text: "Quand tu as envie d’abandonner, pense à pourquoi tu as commencé.", author: "Anonyme" }, { text: "Le succès est un mauvais professeur. Il pousse les gens intelligents à croire qu’ils sont infaillibles.", author: "Bill Gates" }, { text: "Ce n’est pas la vitesse qui compte, c’est la direction.", author: "Anonyme" }, { text: "Si tu veux avoir ce que tu n’as jamais eu, tu dois faire ce que tu n’as jamais fait.", author: "Thomas Jefferson (attribuée)" }, { text: "Accepte ce qui est, laisse aller ce qui était, aie confiance en ce qui sera.", author: "Bouddha" }, { text: "On ne devient pas excellent par accident.", author: "Anonyme" }, { text: "Il y a deux types de douleur : celle de la discipline et celle des regrets.", author: "Jim Rohn" }, { text: "Arrête de douter de toi. Tu es plus capable que tu ne le crois.", author: "Anonyme" }, { text: "Ta zone de confort est belle, mais rien n’y pousse.", author: "Anonyme" }, { text: "L’important, ce n’est pas où tu es aujourd’hui, mais où tu veux aller.", author: "Brian Tracy" }, { text: "Rien ne changera tant que tu ne changeras pas.", author: "Anonyme" }
-            ];
+          btn.dataset.selected = String(!currentlySelected);
+          btn.classList.toggle('selected', !currentlySelected);
+          btn.classList.add('pop');
+          btn.setAttribute('aria-pressed', String(!currentlySelected));
+          setTimeout(()=>btn.classList.remove('pop'), 140);
 
-            function updateQuote() {
-                const randomIndex = Math.floor(Math.random() * quotes.length);
-                const randomQuote = quotes[randomIndex];
-                quoteTextEl.textContent = `"${randomQuote.text}"`;
-                quoteAuthorEl.textContent = `— ${randomQuote.author}`;
-            }
-
-            // --- Initialisation de l'application ---
-            function initializeApp() {
-                try {
-                    const storedTasks = localStorage.getItem('tasks');
-                    tasks = storedTasks ? JSON.parse(storedTasks) : [];
-                } catch (e) {
-                    console.error("Erreur de lecture des tâches, réinitialisation.", e);
-                    tasks = [];
-                }
-
-                if (!startTime) {
-                    startTime = new Date().getTime();
-                    localStorage.setItem('chronoStartTime', startTime);
-                }
-
-                renderTasks();
-                renderTimelineStructure();
-                updateQuote();
-                setInterval(updateChrono, 1000);
-                setInterval(() => {
-                    updateQuote();
-                    quoteProgressBar.classList.remove('progress-bar-fill');
-                    void quoteProgressBar.offsetWidth; 
-                    quoteProgressBar.classList.add('progress-bar-fill');
-                }, 10000);
-                updateChrono();
-
-                // Attacher tous les écouteurs d'événements
-                resetChronoBtn.addEventListener('click', () => {
-                    showConfirmationModal("Une décision courageuse.", "Être honnête avec soi-même est le premier pas. Prêt à repartir plus fort ?", () => {
-                        startTime = new Date().getTime();
-                        localStorage.setItem('chronoStartTime', startTime);
-                        updateChrono();
-                    });
-                });
-                addTaskBtn.addEventListener('click', addTask);
-                newTaskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
-                resetTasksBtn.addEventListener('click', () => {
-                    showConfirmationModal("Prêt pour un nouveau départ ?", "Toutes vos habitudes seront réinitialisées pour la journée.", () => {
-                        tasks.forEach(task => task.checked = false);
-                        saveTasks();
-                        renderTasks();
-                    });
-                });
-                openChallengeBtn.addEventListener('click', () => {
-                    updateChallengeUI();
-                    updateChallengeTimer();
-                    challengeInterval = setInterval(updateChallengeTimer, 1000);
-                    challengeModal.classList.remove('hidden');
-                    setTimeout(() => {
-                        challengeModal.classList.remove('opacity-0');
-                        challengeModal.querySelector('.modal-content').classList.remove('scale-95');
-                    }, 10);
-                });
-                closeChallengeBtn.addEventListener('click', () => {
-                    clearInterval(challengeInterval);
-                    challengeModal.classList.add('opacity-0');
-                    challengeModal.querySelector('.modal-content').classList.add('scale-95');
-                    setTimeout(() => challengeModal.classList.add('hidden'), 300);
-                });
-                completeChallengeBtn.addEventListener('click', () => {
-                    const today = getTodayDateString();
-                    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-                    let challengeData = getChallengeData();
-                    if (challengeData.lastCompleted === yesterday) {
-                        challengeData.streak++;
-                    } else if (challengeData.lastCompleted !== today) {
-                        challengeData.streak = 1;
-                    }
-                    challengeData.lastCompleted = today;
-                    localStorage.setItem('challengeData', JSON.stringify(challengeData));
-                    updateChallengeUI();
-                });
-                confirmBtn.addEventListener('click', () => {
-                    if (confirmCallback) {
-                        confirmCallback();
-                    }
-                    hideConfirmationModal();
-                });
-                cancelBtn.addEventListener('click', hideConfirmationModal);
-                confirmationModal.addEventListener('click', (e) => {
-                    if (e.target === confirmationModal) {
-                        hideConfirmationModal();
-                    }
-                });
-            }
-            
-            initializeApp();
+          updateSelectCounter();
+          validateOnboarding();
         });
-    </script>
 
+        habitChoices.appendChild(btn);
+      });
+      updateSelectCounter();
+    }
+
+    function updateSelectCounter() {
+      const count = $$('#habitChoices .chip').filter(c => c.dataset.selected === 'true').length;
+      selectCounter.textContent = `${count}/3`;
+    }
+
+    function showOnboarding(){
+      onboardingModal.classList.remove('pointer-events-none');
+      onboardingModal.style.opacity = '1';
+      modalCard.classList.remove('hide');
+      modalCard.classList.add('show');
+    }
+    function hideOnboarding(){
+      onboardingModal.style.opacity = '0';
+      modalCard.classList.remove('show');
+      modalCard.classList.add('hide');
+      setTimeout(()=>onboardingModal.classList.add('pointer-events-none'), 220);
+    }
+
+    function validateOnboarding() {
+      const nameOk = (nameInput.value || '').trim().length > 0;
+      const selected = $$('#habitChoices .chip').filter(c => c.dataset.selected === 'true').map(c => c.querySelector('.label').textContent);
+      const habitsOk = selected.length >= 2 && selected.length <= 3;
+      startBtn.disabled = !(nameOk && habitsOk);
+      if (nameOk && habitsOk) errorMsg.classList.add('hidden');
+      return { nameOk, habitsOk, selected };
+    }
+
+    nameInput.addEventListener('input', validateOnboarding);
+
+    startBtn.addEventListener('click', () => {
+      const { nameOk, habitsOk, selected } = validateOnboarding();
+      if (!nameOk || !habitsOk) {
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+      const name = nameInput.value.trim();
+
+      // Sauvegarde
+      ls.set('userName', name);
+      const mapped = selected.map(t => ({ text: t, checked: false }));
+      const existing = ls.get('tasks', []);
+      if (!existing || !Array.isArray(existing) || existing.length === 0) {
+        ls.set('tasks', mapped);
+      }
+
+      loadUserData();
+      renderTasks();
+      hideOnboarding();
+    });
+
+    // ----- Données & rendu -----
+    function loadUserData(){
+      const userName = ls.get('userName', '');
+      if (userName && typeof userName === 'string' && userName.trim().toLowerCase() !== 'vous') {
+        mainTitle.textContent = `La meilleure version de ${userName}`;
+      } else {
+        mainTitle.textContent = 'La meilleure version de toi';
+      }
+      const savedTasks = ls.get('tasks', []);
+      tasks = Array.isArray(savedTasks) ? savedTasks : [];
+    }
+    function saveTasks(){ ls.set('tasks', tasks); }
+
+    // Tâches
+    function renderTasks(){
+      taskList.innerHTML = '';
+      if (!tasks.length) {
+        taskList.innerHTML = '<p class="text-slate-500 text-center py-4">Aucune habitude pour le moment. Ajoute-en une 👇</p>';
+        return;
+      }
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.className = `task-item flex items-center bg-slate-50 p-3 rounded-lg transition duration-300 hover:bg-slate-100 ${task.checked?'opacity-60':''}`;
+        li.innerHTML = `
+          <input type="checkbox" id="task-${index}" class="h-5 w-5 rounded border-slate-300 text-slate-600 focus:ring-indigo-600 cursor-pointer" ${task.checked?'checked':''}>
+          <label for="task-${index}" class="ml-3 flex-grow text-slate-700 cursor-pointer ${task.checked?'line-through text-slate-400':''}">${task.text}</label>
+          <button class="delete-btn text-red-500 ml-2 hover:text-red-700 transition-colors duration-200" aria-label="Supprimer la tâche" data-index="${index}">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        `;
+        taskList.appendChild(li);
+
+        li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+          tasks[index].checked = e.target.checked;
+          saveTasks();
+          renderTasks();
+        });
+        li.querySelector('.delete-btn').addEventListener('click', () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
+      });
+    }
+
+    function addTask(){
+      const text = newTaskInput.value.trim();
+      if (text) {
+        tasks.push({ text, checked:false });
+        newTaskInput.value = '';
+        saveTasks();
+        renderTasks();
+      }
+    }
+    addTaskBtn.addEventListener('click', addTask);
+    newTaskInput.addEventListener('keypress', (e)=>{ if(e.key==='Enter') addTask(); });
+    resetTasksBtn.addEventListener('click', () => {
+      tasks.forEach(t => t.checked = false);
+      saveTasks();
+      renderTasks();
+    });
+
+    // Chrono
+    function updateChrono(){
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const avgDaysInMonth = 30.4375;
+      const totalDaysRaw = elapsed / 86400000;
+
+      const months = Math.floor(totalDaysRaw / avgDaysInMonth);
+      const days   = Math.floor(totalDaysRaw % avgDaysInMonth);
+      const hours  = Math.floor((elapsed % 86400000) / 3600000);
+      const mins   = Math.floor((elapsed % 3600000) / 60000);
+      const secs   = Math.floor((elapsed % 60000) / 1000);
+
+      monthsEl.textContent  = months;
+      daysEl.textContent    = days;
+      hoursEl.textContent   = String(hours).padStart(2,'0');
+      minutesEl.textContent = String(mins).padStart(2,'0');
+      secondsEl.textContent = String(secs).padStart(2,'0');
+
+      updateTimeline(elapsed);
+    }
+    resetChronoBtn.addEventListener('click', () => {
+      startTime = Date.now();
+      ls.set('chronoStartTime', String(startTime));
+      updateChrono();
+    });
+
+    // Frise
+    const DAY=86400000, WEEK=DAY*7, MONTH=DAY*30.4375, YEAR=DAY*365.25;
+    const objectives = [
+      { label:'1 Jour', duration: DAY },
+      { label:'1 Sem.', duration: WEEK },
+      { label:'2 Sem.', duration: WEEK*2 },
+      { label:'3 Sem.', duration: WEEK*3 },
+      { label:'1 Mois', duration: MONTH },
+      { label:'6 Mois', duration: MONTH*6 },
+      { label:'1 An',   duration: YEAR }
+    ];
+    function renderTimelineStructure(){
+      timelineNodesContainer.innerHTML = '';
+      objectives.forEach((obj, i) => {
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'relative flex flex-col items-center';
+        const labelPos = i % 2 === 0 ? '-bottom-7' : '-top-7';
+        nodeEl.innerHTML = `
+          <div id="timeline-node-${i}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div>
+          <span class="absolute ${labelPos} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>
+        `;
+        timelineNodesContainer.appendChild(nodeEl);
+      });
+    }
+    function updateTimeline(elapsed){
+      const yearDur = objectives[objectives.length-1].duration;
+      const progressPct = Math.min(100, (elapsed / yearDur) * 100);
+      timelineProgress.style.width = `${progressPct}%`;
+
+      if (elapsed >= yearDur) {
+        timelinePercentage.style.left = '100%';
+        timelinePercentage.textContent = "Complété !";
+        objectives.forEach((_, i) => {
+          const n = document.getElementById(`timeline-node-${i}`);
+          if (n){ n.classList.add('bg-slate-600'); n.classList.remove('bg-slate-200'); }
+        });
+        return;
+      }
+
+      let lastDur = 0, nextObj = objectives[0];
+      for (let i=0;i<objectives.length;i++){
+        const node = document.getElementById(`timeline-node-${i}`);
+        if (elapsed >= objectives[i].duration) {
+          lastDur = objectives[i].duration;
+          if (i+1 < objectives.length) nextObj = objectives[i+1];
+          if(node){ node.classList.remove('bg-slate-200'); node.classList.add('bg-slate-600'); }
+        } else {
+          if(node){ node.classList.add('bg-slate-200'); node.classList.remove('bg-slate-600'); }
+        }
+      }
+      const segmentTotal = nextObj.duration - lastDur;
+      const segElapsed = Math.max(0, elapsed - lastDur);
+      const segPct = Math.min(100, (segElapsed / segmentTotal) * 100);
+      timelinePercentage.textContent = `${Math.floor(segPct)}% vers ${nextObj.label}`;
+      timelinePercentage.style.left = `${progressPct}%`;
+    }
+
+    // Défi du jour (résumé)
+    const quotes = [
+      { text: "Connais-toi toi-même.", author: "Socrate" },
+      { text: "La discipline est le pont entre les objectifs et leur réalisation.", author: "Jim Rohn" }
+    ];
+    const challenges = [
+      "Fais ton max de pompes.", "Tiens la planche le plus longtemps possible.",
+      "Bois 2 litres d'eau aujourd'hui.", "Écris 3 choses positives de la journée."
+    ];
+    const quoteTextEl = $('#quote-text'), quoteAuthorEl = $('#quote-author'), quoteProgressBar = $('#quote-progress-bar');
+    function updateQuote(){
+      const i = Math.floor(Math.random()*quotes.length);
+      const q = quotes[i];
+      quoteTextEl.textContent = `"${q.text}"`;
+      quoteAuthorEl.textContent = `— ${q.author}`;
+      quoteProgressBar.classList.remove('progress-bar-fill'); void quoteProgressBar.offsetWidth; quoteProgressBar.classList.add('progress-bar-fill');
+    }
+    function getTodayDateString(){ return new Date().toISOString().split('T')[0]; }
+    function getChallengeForToday(){
+      const epochDays = Math.floor(Date.now()/86400000);
+      return challenges[epochDays % challenges.length];
+    }
+    function updateChallengeTimer(){
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate()+1);
+      tomorrow.setHours(0,0,0,0);
+      const diff = Math.max(0, tomorrow - now);
+      const DAY = 24*60*60*1000;
+      const h = String(Math.floor((diff % (DAY)) / (1000*60*60))).padStart(2,'0');
+      const m = String(Math.floor((diff % (1000*60*60)) / (1000*60))).padStart(2,'0');
+      const s = String(Math.floor((diff % (1000*60)) / 1000)).padStart(2,'0');
+      challengeTimerEl.textContent = `${h}:${m}:${s}`;
+    }
+    function updateChallengeUI(){
+      const today = getTodayDateString();
+      const ch = ls.get('challengeData', { lastCompleted:null, streak:0 });
+      challengeText.textContent = getChallengeForToday();
+      streakCounter.textContent = ch.streak || 0;
+
+      const completed = ch.lastCompleted === today;
+      completeChallengeBtn.disabled = completed;
+      if (completed) {
+        completeChallengeBtn.textContent = "Défi du jour accompli !";
+        completeChallengeBtn.classList.add('bg-slate-400');
+        completeChallengeBtn.classList.remove('bg-green-600','hover:bg-green-700');
+      } else {
+        completeChallengeBtn.innerHTML = '<i class="fas fa-check mr-2"></i> J\'ai réussi !';
+        completeChallengeBtn.classList.remove('bg-slate-400');
+        completeChallengeBtn.classList.add('bg-green-600','hover:bg-green-700');
+      }
+    }
+    let challengeInterval=null;
+    openChallengeBtn.addEventListener('click', () => {
+      updateChallengeUI();
+      updateChallengeTimer();
+      if (challengeInterval) clearInterval(challengeInterval);
+      challengeInterval = setInterval(updateChallengeTimer, 1000);
+      challengeModal.classList.remove('hidden');
+      requestAnimationFrame(()=> {
+        challengeModal.classList.remove('opacity-0');
+        $('.modal-content', challengeModal).classList.remove('scale-95');
+      });
+    });
+    closeChallengeBtn.addEventListener('click', closeChallengeModal);
+    function closeChallengeModal(){
+      if (challengeInterval) { clearInterval(challengeInterval); challengeInterval = null; }
+      challengeModal.classList.add('opacity-0');
+      $('.modal-content', challengeModal).classList.add('scale-95');
+      setTimeout(()=> challengeModal.classList.add('hidden'), 250);
+    }
+    completeChallengeBtn.addEventListener('click', () => {
+      const today = getTodayDateString();
+      const yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0];
+      let data = ls.get('challengeData', { lastCompleted:null, streak:0 }) || { lastCompleted:null, streak:0 };
+      if (data.lastCompleted === yesterday) data.streak = (data.streak||0) + 1;
+      else if (data.lastCompleted !== today) data.streak = 1;
+      data.lastCompleted = today;
+      ls.set('challengeData', data);
+      updateChallengeUI();
+    });
+
+    // Init
+    function initialize(){
+      loadUserData();
+      renderTasks();
+      renderTimelineStructure();
+      updateQuote();
+      updateChrono();
+      setInterval(updateChrono, 1000);
+      setInterval(updateQuote, 10000);
+
+      // Affiche la pop-up si nouveau
+      const hasName = !!ls.get('userName','');
+      const hasTasks = Array.isArray(ls.get('tasks', [])) && ls.get('tasks', []).length > 0;
+      if (!hasName || !hasTasks) {
+        renderHabitChoices();
+        showOnboarding();
+        validateOnboarding();
+      }
+    }
+
+    // Frise structure
+    function renderTimelineStructure(){
+      timelineNodesContainer.innerHTML = '';
+      objectives.forEach((obj, i) => {
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'relative flex flex-col items-center';
+        const labelPos = i % 2 === 0 ? '-bottom-7' : '-top-7';
+        nodeEl.innerHTML = `
+          <div id="timeline-node-${i}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div>
+          <span class="absolute ${labelPos} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>
+        `;
+        timelineNodesContainer.appendChild(nodeEl);
+      });
+    }
+
+    initialize();
+  })();
+  </script>
 </body>
 </html>
