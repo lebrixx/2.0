@@ -25,46 +25,20 @@
             to { width: 100%; }
         }
         .progress-bar-fill {
-            animation: fill-progress 10s linear;
+            animation: fill-progress 10s linear infinite;
         }
         /* Styles pour les fenêtres modales */
-        .modal-overlay, #welcome-screen {
-            transition: opacity 0.5s ease;
+        .modal-overlay {
+            transition: opacity 0.3s ease;
         }
         .modal-content {
-            transition: transform 0.5s ease;
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-    <!-- Écran de Bienvenue -->
-    <div id="welcome-screen" class="fixed inset-0 bg-slate-800 z-50 flex items-center justify-center p-4">
-        <div class="text-center text-white max-w-lg w-full">
-            <h1 class="text-4xl font-bold brand-font">Bienvenue.</h1>
-            <p class="mt-2 text-lg text-slate-300">Bravo d'avoir pris la décision de commencer votre transformation. Ce premier pas est le plus important.</p>
-            
-            <div class="mt-8">
-                <label for="name-input" class="block text-sm font-medium text-slate-300 mb-2">Comment devrions-nous vous appeler ?</label>
-                <input type="text" id="name-input" placeholder="Votre prénom..." class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white text-center focus:outline-none focus:ring-2 focus:ring-slate-500">
-            </div>
-
-            <div class="mt-8">
-                <p class="block text-sm font-medium text-slate-300 mb-2">Choisissez quelques habitudes pour commencer :</p>
-                <div id="default-habits" class="flex flex-wrap justify-center gap-2">
-                    <!-- Les habitudes par défaut seront injectées ici -->
-                </div>
-                <p class="text-xs text-slate-400 mt-3 italic">Ne vous inquiétez pas, vous pourrez modifier, ajouter et supprimer vos habitudes à tout moment.</p>
-            </div>
-
-            <button id="start-btn" class="w-full mt-8 px-8 py-4 bg-white text-slate-800 font-bold rounded-lg hover:bg-slate-200 transition duration-300 shadow-lg transform hover:scale-105">
-                Commencer mon parcours
-            </button>
-            <p class="text-xs text-slate-600 mt-4">un espace par lebrix</p>
-        </div>
-    </div>
-
-    <div id="main-content" class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl hidden">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
 
         <!-- Header avec image de fond -->
         <header class="relative bg-slate-800 text-white text-center rounded-xl shadow-lg overflow-hidden mb-8">
@@ -216,13 +190,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- ÉLÉMENTS DU DOM ---
-            const welcomeScreen = document.getElementById('welcome-screen');
-            const mainContent = document.getElementById('main-content');
-            const nameInput = document.getElementById('name-input');
-            const defaultHabitsContainer = document.getElementById('default-habits');
-            const startBtn = document.getElementById('start-btn');
-            const mainTitle = document.getElementById('main-title');
-
             const monthsEl = document.getElementById('months');
             const daysEl = document.getElementById('days');
             const hoursEl = document.getElementById('hours');
@@ -254,131 +221,48 @@
 
             let challengeInterval = null;
             let confirmCallback = null;
-            // CORRECTION : La variable `tasks` est déclarée ici pour être accessible partout.
             let tasks = [];
-            
-            // --- GESTION DE L'ÉCRAN DE BIENVENUE ---
-            const defaultHabits = ['Faire son lit', 'Boire 2L d\'eau', 'Lire 10 pages', 'Méditer 5 min', 'Faire du sport', 'Apprendre une langue', 'Écrire ses pensées'];
-            
-            defaultHabits.forEach(habit => {
-                const button = document.createElement('button');
-                button.textContent = habit;
-                button.className = 'px-3 py-1 bg-slate-600 text-white rounded-full text-sm cursor-pointer transition-colors hover:bg-slate-500';
-                button.dataset.selected = 'false';
-                button.addEventListener('click', () => {
-                    if (button.dataset.selected === 'false') {
-                        button.dataset.selected = 'true';
-                        button.classList.replace('bg-slate-600', 'bg-white');
-                        button.classList.replace('text-white', 'text-slate-800');
-                    } else {
-                        button.dataset.selected = 'false';
-                        button.classList.replace('bg-white', 'bg-slate-600');
-                        button.classList.replace('text-slate-800', 'text-white');
-                    }
-                });
-                defaultHabitsContainer.appendChild(button);
-            });
-
-            startBtn.addEventListener('click', () => {
-                const name = nameInput.value.trim() || 'Vous';
-                showConfirmationModal(
-                    `Bienvenue, ${name} !`,
-                    "Est-ce bien votre prénom ? Vous ne pourrez plus le modifier par la suite.",
-                    () => {
-                        localStorage.setItem('userName', name);
-                        const selectedHabits = [];
-                        defaultHabitsContainer.querySelectorAll('button').forEach(button => {
-                            if (button.dataset.selected === 'true') {
-                                selectedHabits.push({ text: button.textContent, checked: false });
-                            }
-                        });
-                        localStorage.setItem('tasks', JSON.stringify(selectedHabits));
-                        
-                        welcomeScreen.classList.add('opacity-0');
-                        setTimeout(() => {
-                            welcomeScreen.classList.add('hidden');
-                            initializeApp();
-                        }, 500);
-                    },
-                    "Oui, commencer !",
-                    "Modifier"
-                );
-            });
-
-            function initializeApp() {
-                loadUserData();
-                mainContent.classList.remove('hidden');
-                
-                // Initialisation des fonctions principales
-                renderTasks();
-                renderTimelineStructure();
-                updateQuote();
-                setInterval(updateChrono, 1000);
-                setInterval(updateQuote, 10000); // Change la citation toutes les 10 secondes
-                updateChrono();
-            }
-
-            function loadUserData() {
-                const userName = localStorage.getItem('userName');
-                if (userName && userName.toLowerCase() !== 'vous') {
-                    mainTitle.textContent = `La meilleure version de ${userName}`;
-                }
-                tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            }
-
-
-            // --- VÉRIFICATION AU CHARGEMENT ---
-            if (localStorage.getItem('userName')) {
-                welcomeScreen.classList.add('hidden');
-                initializeApp();
-            } else {
-                welcomeScreen.classList.remove('hidden');
-            }
-
-
-            // --- GESTION DU CHRONOMÈTRE ---
             let startTime = localStorage.getItem('chronoStartTime');
-            if (!startTime) {
-                startTime = new Date().getTime();
-                localStorage.setItem('chronoStartTime', startTime);
+
+            // --- Fonctions ---
+
+            function showConfirmationModal(title, message, onConfirm, confirmText = 'Confirmer', cancelText = 'Annuler') {
+                confirmationTitle.textContent = title;
+                confirmationMessage.textContent = message;
+                confirmBtn.textContent = confirmText;
+                cancelBtn.textContent = cancelText;
+                confirmCallback = onConfirm;
+                confirmationModal.classList.remove('hidden');
+                setTimeout(() => {
+                    confirmationModal.classList.remove('opacity-0');
+                    confirmationModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideConfirmationModal() {
+                confirmationModal.classList.add('opacity-0');
+                confirmationModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => confirmationModal.classList.add('hidden'), 300);
             }
 
             function updateChrono() {
                 const now = new Date().getTime();
                 const elapsedTime = now - startTime;
-
                 const avgDaysInMonth = 30.4375;
                 const totalDaysRaw = elapsedTime / (1000 * 60 * 60 * 24);
-
                 const months = Math.floor(totalDaysRaw / avgDaysInMonth);
                 const days = Math.floor(totalDaysRaw % avgDaysInMonth);
-                
                 const hours = Math.floor((elapsedTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-
                 monthsEl.textContent = months;
                 daysEl.textContent = days;
                 hoursEl.textContent = String(hours).padStart(2, '0');
                 minutesEl.textContent = String(minutes).padStart(2, '0');
                 secondsEl.textContent = String(seconds).padStart(2, '0');
-
                 updateTimeline(elapsedTime);
             }
 
-            resetChronoBtn.addEventListener('click', () => {
-                showConfirmationModal(
-                    "Une décision courageuse.",
-                    "Être honnête avec soi-même est le premier pas. Prêt à repartir plus fort ?",
-                    () => {
-                        startTime = new Date().getTime();
-                        localStorage.setItem('chronoStartTime', startTime);
-                        updateChrono();
-                    }
-                );
-            });
-
-            // --- GESTION DE LA LISTE DE TÂCHES ---
             function saveTasks() {
                 localStorage.setItem('tasks', JSON.stringify(tasks));
             }
@@ -392,22 +276,14 @@
                 tasks.forEach((task, index) => {
                     const li = document.createElement('li');
                     li.className = `task-item flex items-center bg-slate-50 p-3 rounded-lg transition duration-300 hover:bg-slate-100 ${task.checked ? 'opacity-60' : ''}`;
-                    li.innerHTML = `
-                        <input type="checkbox" id="task-${index}" class="h-5 w-5 rounded border-slate-300 text-slate-600 focus:ring-slate-500 cursor-pointer" ${task.checked ? 'checked' : ''}>
-                        <label for="task-${index}" class="ml-3 flex-grow text-slate-700 cursor-pointer ${task.checked ? 'line-through text-slate-400' : ''}">${task.text}</label>
-                        <button class="delete-btn text-red-500 ml-2 hover:text-red-700 transition-colors duration-200" data-index="${index}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    `;
+                    li.innerHTML = `<input type="checkbox" id="task-${index}" class="h-5 w-5 rounded border-slate-300 text-slate-600 focus:ring-slate-500 cursor-pointer" ${task.checked ? 'checked' : ''}><label for="task-${index}" class="ml-3 flex-grow text-slate-700 cursor-pointer ${task.checked ? 'line-through text-slate-400' : ''}">${task.text}</label><button class="delete-btn text-red-500 ml-2 hover:text-red-700 transition-colors duration-200" data-index="${index}"><i class="fas fa-trash-alt"></i></button>`;
                     taskList.appendChild(li);
-
                     const checkbox = li.querySelector('input[type="checkbox"]');
                     checkbox.addEventListener('change', () => {
                         tasks[index].checked = checkbox.checked;
                         saveTasks();
                         renderTasks();
                     });
-
                     const deleteBtn = li.querySelector('.delete-btn');
                     deleteBtn.addEventListener('click', () => {
                         tasks.splice(index, 1);
@@ -427,30 +303,8 @@
                 }
             }
 
-            addTaskBtn.addEventListener('click', addTask);
-            newTaskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
-
-            resetTasksBtn.addEventListener('click', () => {
-                showConfirmationModal(
-                    "Prêt pour un nouveau départ ?",
-                    "Toutes vos habitudes seront réinitialisées pour la journée.",
-                    () => {
-                        tasks.forEach(task => task.checked = false);
-                        saveTasks();
-                        renderTasks();
-                    }
-                );
-            });
-            
-            // --- GESTION DE LA FRISE CHRONOLOGIQUE ---
             const objectives = [
-                { label: '1 Jour', duration: 1000 * 60 * 60 * 24 },
-                { label: '1 Sem.', duration: 1000 * 60 * 60 * 24 * 7 },
-                { label: '2 Sem.', duration: 1000 * 60 * 60 * 24 * 14 },
-                { label: '3 Sem.', duration: 1000 * 60 * 60 * 24 * 21 },
-                { label: '1 Mois', duration: 1000 * 60 * 60 * 24 * 30.4375 },
-                { label: '6 Mois', duration: 1000 * 60 * 60 * 24 * 30.4375 * 6 },
-                { label: '1 An', duration: 1000 * 60 * 60 * 24 * 365.25 }
+                { label: '1 Jour', duration: 1000 * 60 * 60 * 24 }, { label: '1 Sem.', duration: 1000 * 60 * 60 * 24 * 7 }, { label: '2 Sem.', duration: 1000 * 60 * 60 * 24 * 14 }, { label: '3 Sem.', duration: 1000 * 60 * 60 * 24 * 21 }, { label: '1 Mois', duration: 1000 * 60 * 60 * 24 * 30.4375 }, { label: '6 Mois', duration: 1000 * 60 * 60 * 24 * 30.4375 * 6 }, { label: '1 An', duration: 1000 * 60 * 60 * 24 * 365.25 }
             ];
 
             function renderTimelineStructure() {
@@ -459,10 +313,7 @@
                     const nodeEl = document.createElement('div');
                     nodeEl.className = 'relative flex flex-col items-center';
                     const labelPositionClass = index % 2 === 0 ? '-bottom-7' : '-top-7';
-                    nodeEl.innerHTML = `
-                        <div id="timeline-node-${index}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div>
-                        <span class="absolute ${labelPositionClass} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>
-                    `;
+                    nodeEl.innerHTML = `<div id="timeline-node-${index}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div><span class="absolute ${labelPositionClass} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>`;
                     timelineNodesContainer.appendChild(nodeEl);
                 });
             }
@@ -510,7 +361,6 @@
                 timelinePercentage.style.transform = `translateX(-${progressPercentage}%)`;
             }
 
-            // --- GESTION DU DÉFI DU JOUR ---
             const challenges = [
                 "Fais ton max de pompes.", "Tiens la position de la planche le plus longtemps possible.", "Apprends un nouveau mot et sa définition.", "Bois 2 litres d'eau dans la journée.", "Fais un compliment sincère à quelqu'un.", "Range et organise ta chambre pendant 15 minutes.", "Écris ton plus grand rêve et 3 actions concrètes pour t'en approcher.", "Écoute une musique apaisante, les yeux fermés, sans rien faire d'autre.", "Liste 5 choses que tu aimerais absolument faire dans ta vie.", "Prends des nouvelles d'un proche que tu n'as pas contacté depuis longtemps.", "Fais 10 minutes d'étirements complets.", "Sors marcher 15 minutes sans musique ni podcast, juste en observant.", "Écris 3 choses positives qui te sont arrivées aujourd'hui.", "Accomplis une petite tâche que tu repousses depuis plusieurs jours.", "Lis 10 pages d'un livre, quel qu'il soit.", "Identifie une de tes mauvaises habitudes et réfléchis à une alternative positive.", "Identifie une compétence que tu aimerais apprendre et regarde une vidéo d'introduction de 10 minutes à ce sujet.", "Fais un exercice de respiration profonde pendant 3 minutes.", "Écris une chose intéressante que tu as apprise aujourd'hui.", "Fixe-toi un seul objectif réalisable pour demain et écris-le.", "Passe 15 minutes sans aucun écran avant de dormir."
             ];
@@ -534,10 +384,20 @@
                 const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
                 challengeTimerEl.textContent = `${hours}:${minutes}:${seconds}`;
             }
+            
+            function getChallengeData() {
+                try {
+                    const storedData = localStorage.getItem('challengeData');
+                    return storedData ? JSON.parse(storedData) : { lastCompleted: null, streak: 0 };
+                } catch (e) {
+                    console.error("Erreur lors de la lecture des données du défi, réinitialisation.", e);
+                    return { lastCompleted: null, streak: 0 };
+                }
+            }
 
             function updateChallengeUI() {
                 const today = getTodayDateString();
-                const challengeData = JSON.parse(localStorage.getItem('challengeData')) || { lastCompleted: null, streak: 0 };
+                const challengeData = getChallengeData();
                 challengeText.textContent = getChallengeForToday();
                 streakCounter.textContent = challengeData.streak;
                 if (challengeData.lastCompleted === today) {
@@ -553,39 +413,6 @@
                 }
             }
 
-            openChallengeBtn.addEventListener('click', () => {
-                updateChallengeUI();
-                updateChallengeTimer();
-                challengeInterval = setInterval(updateChallengeTimer, 1000);
-                challengeModal.classList.remove('hidden');
-                setTimeout(() => {
-                    challengeModal.classList.remove('opacity-0');
-                    challengeModal.querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
-            });
-
-            closeChallengeBtn.addEventListener('click', () => {
-                clearInterval(challengeInterval);
-                challengeModal.classList.add('opacity-0');
-                challengeModal.querySelector('.modal-content').classList.add('scale-95');
-                setTimeout(() => challengeModal.classList.add('hidden'), 300);
-            });
-
-            completeChallengeBtn.addEventListener('click', () => {
-                const today = getTodayDateString();
-                const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-                let challengeData = JSON.parse(localStorage.getItem('challengeData')) || { lastCompleted: null, streak: 0 };
-                if (challengeData.lastCompleted === yesterday) {
-                    challengeData.streak++;
-                } else if (challengeData.lastCompleted !== today) {
-                    challengeData.streak = 1;
-                }
-                challengeData.lastCompleted = today;
-                localStorage.setItem('challengeData', JSON.stringify(challengeData));
-                updateChallengeUI();
-            });
-
-            // --- GESTION DES CITATIONS DYNAMIQUES ---
             const quotes = [
                 { text: "Connais-toi toi-même.", author: "Socrate" }, { text: "Vous devez être le changement que vous voulez voir dans le monde.", author: "Mahatma Gandhi" }, { text: "Ce n’est pas parce que les choses sont difficiles que nous n’osons pas, c’est parce que nous n’osons pas qu’elles sont difficiles.", author: "Sénèque" }, { text: "Le plus grand échec est de ne pas avoir le courage d’oser.", author: "Abbé Pierre" }, { text: "Ne jugez pas chaque jour à la récolte que vous faites, mais aux graines que vous semez.", author: "Robert Louis Stevenson" }, { text: "Ce que vous pensez, vous le devenez. Ce que vous ressentez, vous l’attirez. Ce que vous imaginez, vous le créez.", author: "Bouddha" }, { text: "Croyez en vos rêves et ils se réaliseront peut-être. Croyez en vous et ils se réaliseront sûrement.", author: "Martin Luther King Jr." }, { text: "La seule limite à notre épanouissement de demain sera nos doutes d’aujourd’hui.", author: "Franklin D. Roosevelt" }, { text: "Celui qui déplace une montagne commence par déplacer de petites pierres.", author: "Confucius" }, { text: "La vie, c’est comme une bicyclette, il faut avancer pour ne pas perdre l’équilibre.", author: "Albert Einstein" }, { text: "Le succès, c’est se promener d’échecs en échecs tout en restant motivé.", author: "Winston Churchill" }, { text: "Choisis un travail que tu aimes et tu n’auras jamais à travailler un seul jour de ta vie.", author: "Confucius" }, { text: "Le succès n’est pas la clé du bonheur. Le bonheur est la clé du succès.", author: "Albert Schweitzer" }, { text: "Je n’échoue jamais. Soit je gagne, soit j’apprends.", author: "Nelson Mandela" }, { text: "Tout ce que l’esprit de l’homme peut concevoir et croire, il peut l’accomplir.", author: "Napoleon Hill" }, { text: "Le succès consiste à aller d’échec en échec sans perdre son enthousiasme.", author: "Winston Churchill" }, { text: "Ce n’est pas la chance qui fait les grands, c’est la constance.", author: "Robin Sharma" }, { text: "Les gagnants trouvent des moyens, les perdants des excuses.", author: "F. D. Roosevelt (attribuée)" }, { text: "Les rêves ne fonctionnent que si vous travaillez dur.", author: "John C. Maxwell" }, { text: "Commencez là où vous êtes. Utilisez ce que vous avez. Faites ce que vous pouvez.", author: "Arthur Ashe" }, { text: "Ce n’est pas parce que les autres doutent de toi que tu dois les croire.", author: "Anonyme" }, { text: "Le plus grand obstacle à la réussite, c’est la peur de l’échec.", author: "Sven Goran Eriksson" }, { text: "Personne ne peut vous faire sentir inférieur sans votre consentement.", author: "Eleanor Roosevelt" }, { text: "C’est dans l’effort que l’on trouve la satisfaction, non dans la réussite. Un plein effort est une pleine victoire.", author: "Mahatma Gandhi" }, { text: "Travaille dur en silence, et laisse ton succès faire du bruit.", author: "Frank Ocean (attribuée)" }, { text: "Celui qui n’a jamais fait d’erreur n’a jamais rien essayé de nouveau.", author: "Albert Einstein" }, { text: "Plus on s’élève, plus on paraît petit à ceux qui ne savent pas voler.", author: "Friedrich Nietzsche" }, { text: "C’est en essayant encore et encore que le singe apprend à bondir.", author: "Proverbe africain" }, { text: "La discipline est le pont entre les objectifs et leur réalisation.", author: "Jim Rohn" }, { text: "Ce que tu évites te contrôle.", author: "Carl Jung" }, { text: "Ils ne savaient pas que c’était impossible, alors ils l’ont fait.", author: "Mark Twain" }, { text: "Fais-le, et si tu as peur, fais-le avec la peur.", author: "Anonyme" }, { text: "Rêver grand. Commencer petit. Agir maintenant.", author: "Robin Sharma" }, { text: "N’attends pas la motivation. Agis, et la motivation viendra.", author: "Mel Robbins" }, { text: "La réussite appartient à ceux qui se lèvent tôt… et n’abandonnent jamais.", author: "Napoleon Hill" }, { text: "Le succès, c’est avoir ce que vous voulez. Le bonheur, c’est aimer ce que vous avez.", author: "H. Jackson Brown Jr." }, { text: "Tout le monde veut briller, mais personne ne veut transpirer.", author: "Anonyme" }, { text: "Tu ne peux pas battre quelqu’un qui n’abandonne jamais.", author: "Babe Ruth" }, { text: "Le talent te fait commencer. La discipline te fait finir.", author: "Zig Ziglar" }, { text: "Quand tu as envie d’abandonner, pense à pourquoi tu as commencé.", author: "Anonyme" }, { text: "Le succès est un mauvais professeur. Il pousse les gens intelligents à croire qu’ils sont infaillibles.", author: "Bill Gates" }, { text: "Ce n’est pas la vitesse qui compte, c’est la direction.", author: "Anonyme" }, { text: "Si tu veux avoir ce que tu n’as jamais eu, tu dois faire ce que tu n’as jamais fait.", author: "Thomas Jefferson (attribuée)" }, { text: "Accepte ce qui est, laisse aller ce qui était, aie confiance en ce qui sera.", author: "Bouddha" }, { text: "On ne devient pas excellent par accident.", author: "Anonyme" }, { text: "Il y a deux types de douleur : celle de la discipline et celle des regrets.", author: "Jim Rohn" }, { text: "Arrête de douter de toi. Tu es plus capable que tu ne le crois.", author: "Anonyme" }, { text: "Ta zone de confort est belle, mais rien n’y pousse.", author: "Anonyme" }, { text: "L’important, ce n’est pas où tu es aujourd’hui, mais où tu veux aller.", author: "Brian Tracy" }, { text: "Rien ne changera tant que tu ne changeras pas.", author: "Anonyme" }
             ];
@@ -595,46 +422,96 @@
                 const randomQuote = quotes[randomIndex];
                 quoteTextEl.textContent = `"${randomQuote.text}"`;
                 quoteAuthorEl.textContent = `— ${randomQuote.author}`;
-
-                // Redémarrer l'animation de la barre de progression
-                quoteProgressBar.classList.remove('progress-bar-fill');
-                void quoteProgressBar.offsetWidth; 
-                quoteProgressBar.classList.add('progress-bar-fill');
             }
 
-            // --- GESTION DES FENÊTRES MODALES ---
-            function showConfirmationModal(title, message, onConfirm, confirmText = 'Confirmer', cancelText = 'Annuler') {
-                confirmationTitle.textContent = title;
-                confirmationMessage.textContent = message;
-                confirmBtn.textContent = confirmText;
-                cancelBtn.textContent = cancelText;
-                confirmCallback = onConfirm;
-                confirmationModal.classList.remove('hidden');
-                setTimeout(() => {
-                    confirmationModal.classList.remove('opacity-0');
-                    confirmationModal.querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
-            }
-
-            function hideConfirmationModal() {
-                confirmationModal.classList.add('opacity-0');
-                confirmationModal.querySelector('.modal-content').classList.add('scale-95');
-                setTimeout(() => confirmationModal.classList.add('hidden'), 300);
-            }
-
-            confirmBtn.addEventListener('click', () => {
-                if (confirmCallback) {
-                    confirmCallback();
+            // --- Initialisation de l'application ---
+            function initializeApp() {
+                try {
+                    const storedTasks = localStorage.getItem('tasks');
+                    tasks = storedTasks ? JSON.parse(storedTasks) : [];
+                } catch (e) {
+                    console.error("Erreur de lecture des tâches, réinitialisation.", e);
+                    tasks = [];
                 }
-                hideConfirmationModal();
-            });
 
-            cancelBtn.addEventListener('click', hideConfirmationModal);
-            confirmationModal.addEventListener('click', (e) => {
-                if (e.target === confirmationModal) {
+                if (!startTime) {
+                    startTime = new Date().getTime();
+                    localStorage.setItem('chronoStartTime', startTime);
+                }
+
+                renderTasks();
+                renderTimelineStructure();
+                updateQuote();
+                setInterval(updateChrono, 1000);
+                setInterval(() => {
+                    updateQuote();
+                    quoteProgressBar.classList.remove('progress-bar-fill');
+                    void quoteProgressBar.offsetWidth; 
+                    quoteProgressBar.classList.add('progress-bar-fill');
+                }, 10000);
+                updateChrono();
+
+                // Attacher tous les écouteurs d'événements
+                resetChronoBtn.addEventListener('click', () => {
+                    showConfirmationModal("Une décision courageuse.", "Être honnête avec soi-même est le premier pas. Prêt à repartir plus fort ?", () => {
+                        startTime = new Date().getTime();
+                        localStorage.setItem('chronoStartTime', startTime);
+                        updateChrono();
+                    });
+                });
+                addTaskBtn.addEventListener('click', addTask);
+                newTaskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+                resetTasksBtn.addEventListener('click', () => {
+                    showConfirmationModal("Prêt pour un nouveau départ ?", "Toutes vos habitudes seront réinitialisées pour la journée.", () => {
+                        tasks.forEach(task => task.checked = false);
+                        saveTasks();
+                        renderTasks();
+                    });
+                });
+                openChallengeBtn.addEventListener('click', () => {
+                    updateChallengeUI();
+                    updateChallengeTimer();
+                    challengeInterval = setInterval(updateChallengeTimer, 1000);
+                    challengeModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        challengeModal.classList.remove('opacity-0');
+                        challengeModal.querySelector('.modal-content').classList.remove('scale-95');
+                    }, 10);
+                });
+                closeChallengeBtn.addEventListener('click', () => {
+                    clearInterval(challengeInterval);
+                    challengeModal.classList.add('opacity-0');
+                    challengeModal.querySelector('.modal-content').classList.add('scale-95');
+                    setTimeout(() => challengeModal.classList.add('hidden'), 300);
+                });
+                completeChallengeBtn.addEventListener('click', () => {
+                    const today = getTodayDateString();
+                    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                    let challengeData = getChallengeData();
+                    if (challengeData.lastCompleted === yesterday) {
+                        challengeData.streak++;
+                    } else if (challengeData.lastCompleted !== today) {
+                        challengeData.streak = 1;
+                    }
+                    challengeData.lastCompleted = today;
+                    localStorage.setItem('challengeData', JSON.stringify(challengeData));
+                    updateChallengeUI();
+                });
+                confirmBtn.addEventListener('click', () => {
+                    if (confirmCallback) {
+                        confirmCallback();
+                    }
                     hideConfirmationModal();
-                }
-            });
+                });
+                cancelBtn.addEventListener('click', hideConfirmationModal);
+                confirmationModal.addEventListener('click', (e) => {
+                    if (e.target === confirmationModal) {
+                        hideConfirmationModal();
+                    }
+                });
+            }
+            
+            initializeApp();
         });
     </script>
 
