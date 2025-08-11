@@ -1,535 +1,537 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>La meilleure version de toi - lebrix</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-<style>
-:root { color-scheme: light; }
-html,body { height:100%; }
-body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:#0f172a; }
-.brand-font { font-family: 'Playfair Display', serif; }
-.header-text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,.4); }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>La meilleure version de toi - lebrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; }
+    html,body { height:100%; }
+    body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:#0f172a; }
+    .brand-font { font-family: 'Playfair Display', serif; }
+    .header-text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,.4); }
 
-/* Chrono : une seule ligne, très légèrement réduit (évite le débordement du “s”) */
-#chrono{
-white-space: nowrap;
-display:inline-flex; align-items:baseline; gap:.5rem;
-line-height:1; font-size:clamp(1.9rem, 4vw + .5rem, 3.48rem);
-letter-spacing:.01em;
-}
-#chrono .u{ font-size:.75em; color:#64748b; }
+    /* Chrono : une ligne, très légèrement réduit (évite le débordement du “s”) */
+    #chrono{
+      white-space: nowrap;
+      display:inline-flex; align-items:baseline; gap:.5rem;
+      line-height:1; font-size:clamp(1.9rem, 4vw + .5rem, 3.48rem);
+      letter-spacing:.01em;
+    }
+    #chrono .u{ font-size:.75em; color:#64748b; }
 
-/* Modale (pop-up) sobre & pro */
-.modal-overlay{ transition: opacity .2s ease; }
-.modal-card{ transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease; }
-.modal-card.show{ transform: translateY(0); opacity:1; }
-.modal-card.hide{ transform: translateY(10px); opacity:0; }
+    /* Pop-up (onboarding) compacte (~50% visuel) */
+    .modal-overlay{ transition: opacity .2s ease; }
+    .modal-card{ transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease; }
+    .modal-card.show{ transform: translateY(0); opacity:1; }
+    .modal-card.hide{ transform: translateY(8px); opacity:0; }
 
-/* Chips très sobres et claires (état de sélection évident) */
-.chip{
-display:flex; align-items:center; gap:.6rem; width:100%;
-padding:.8rem .95rem; border-radius:.8rem;
-border:1.5px solid rgb(226,232,240); background:#fff; color:rgb(51,65,85);
-transition:border-color .16s, background .16s, box-shadow .16s, transform .06s, color .16s;
-}
-.chip:hover{ border-color: rgb(203,213,225); }
-.chip:active{ transform:scale(.985); }
-.chip .tick{
-width:20px;height:20px;border-radius:9999px;
-border:1.5px solid rgb(203,213,225);
-display:inline-flex;align-items:center;justify-content:center;
-font-size:10px;color:transparent;background:#fff;transition:all .16s;
-}
-.chip.selected{
-border-color: rgb(30,41,59); background:#f8fafc; color:#0f172a;
-box-shadow:0 0 0 3px rgba(15,23,42,.06);
-}
-.chip.selected .tick{ background:#1e293b; border-color:#1e293b; color:#fff; }
-.select-counter{ font-variant-numeric: tabular-nums; }
+    .chip{
+      display:flex; align-items:center; gap:.5rem; width:100%;
+      padding:.5rem .6rem; border-radius:.6rem;
+      border:1.5px solid rgb(226,232,240); background:#fff; color:rgb(51,65,85);
+      transition:border-color .16s, background .16s, box-shadow .16s, transform .06s, color .16s;
+      font-size:.9rem; line-height:1.1;
+    }
+    .chip:hover{ border-color: rgb(203,213,225); }
+    .chip:active{ transform:scale(.985); }
+    .chip .tick{
+      width:18px;height:18px;border-radius:9999px;
+      border:1.5px solid rgb(203,213,225);
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:9px;color:transparent;background:#fff;transition:all .16s;
+      flex:0 0 auto;
+    }
+    .chip.selected{
+      border-color:#1e293b; background:#f8fafc; color:#0f172a;
+      box-shadow:0 0 0 3px rgba(15,23,42,.06);
+    }
+    .chip.selected .tick{ background:#1e293b; border-color:#1e293b; color:#fff; }
+    .select-counter{ font-variant-numeric: tabular-nums; }
 
-/* Barre de citation (animation fiable) */
-#quote-progress-bar{ width:0; }
-@keyframes fill-progress { from{width:0%} to{width:100%} }
-.run-quote { animation: fill-progress 10s linear forwards; }
-</style>
+    /* Barre de citation (animation fiable) */
+    #quote-progress-bar{ width:0; }
+    @keyframes fill-progress { from{width:0%} to{width:100%} }
+    .run-quote { animation: fill-progress 10s linear forwards; }
+  </style>
 </head>
 <body class="text-slate-800">
 
-<!-- Contenu principal -->
-<div id="main-content" class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
-<!-- Header -->
-<header class="relative bg-slate-900 text-white text-center rounded-xl shadow-lg overflow-hidden mb-8">
-<img src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?q=80&w=2574&auto=format&fit=crop"
-class="absolute h-full w-full object-cover opacity-30" alt="Paysage inspirant"
-onerror="this.style.display='none'">
-<div class="relative p-12 sm:p-16">
-<h1 id="main-title" class="text-4xl sm:text-5xl font-bold header-text-shadow brand-font leading-tight">
-La meilleure version de toi
-</h1>
-<p class="text-lg text-slate-200 mt-4 header-text-shadow">lebrix</p>
-<div class="mt-6">
-<button id="openChallengeBtn"
-class="px-6 py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/15 transition duration-200 backdrop-blur-sm border border-white/10">
-<i class="fas fa-star mr-2"></i> Défi du Jour
-</button>
-</div>
-</div>
-</header>
+  <div id="main-content" class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
+    <!-- Header -->
+    <header class="relative bg-slate-900 text-white text-center rounded-xl shadow-lg overflow-hidden mb-8">
+      <img src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?q=80&w=2574&auto=format&fit=crop"
+           class="absolute h-full w-full object-cover opacity-30" alt="Paysage inspirant"
+           onerror="this.style.display='none'">
+      <div class="relative p-10 sm:p-14">
+        <h1 id="main-title" class="text-4xl sm:text-5xl font-bold header-text-shadow brand-font leading-tight">
+          La meilleure version de toi
+        </h1>
+        <p class="text-lg text-slate-200 mt-4 header-text-shadow">lebrix</p>
+        <div class="mt-6">
+          <button id="openChallengeBtn"
+                  class="px-6 py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/15 transition duration-200 backdrop-blur-sm border border-white/10">
+            <i class="fas fa-star mr-2"></i> Défi du Jour
+          </button>
+        </div>
+      </div>
+    </header>
 
-<!-- Parcours -->
-<div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-<h2 class="text-2xl font-semibold text-slate-800 mb-2 text-center">Votre Parcours de Transformation</h2>
-<p class="text-sm text-slate-500 mb-6 text-center italic">Le temps écoulé depuis votre engagement et les paliers franchis.</p>
+    <!-- Parcours -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <h2 class="text-2xl font-semibold text-slate-800 mb-2 text-center">Votre Parcours de Transformation</h2>
+      <p class="text-sm text-slate-500 mb-6 text-center italic">Le temps écoulé depuis votre engagement et les paliers franchis.</p>
 
-<!-- Chrono -->
-<div class="text-center">
-<div id="chrono" class="mx-auto">
-<span id="months">0</span><span class="u">mois</span>
-<span id="days">0</span><span class="u">j</span>
-<span id="hours">00</span><span class="u">h</span>
-<span id="minutes">00</span><span class="u">m</span>
-<span id="seconds">00</span><span class="u">s</span>
-</div>
-</div>
+      <!-- Chrono -->
+      <div class="text-center">
+        <div id="chrono" class="mx-auto">
+          <span id="months">0</span><span class="u">mois</span>
+          <span id="days">0</span><span class="u">j</span>
+          <span id="hours">00</span><span class="u">h</span>
+          <span id="minutes">00</span><span class="u">m</span>
+          <span id="seconds">00</span><span class="u">s</span>
+        </div>
+      </div>
 
-<hr class="my-6 border-slate-200">
+      <hr class="my-6 border-slate-200">
 
-<!-- Frise -->
-<div>
-<h3 class="text-lg font-semibold text-slate-700 mb-8 text-center">Frise de Constance</h3>
-<div id="timeline-container" class="relative w-full h-16 flex items-center px-2">
-<div class="absolute w-full h-1 bg-slate-200 rounded-full left-0"></div>
-<div id="timeline-progress" class="absolute h-1 bg-slate-700 rounded-full left-0 transition-all duration-1000 ease-linear"></div>
-<!-- Décalage léger vers la droite ( +10px ) -->
-<div id="timeline-percentage"
-class="absolute bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded-md -top-10 transition-all duration-1000 ease-linear whitespace-nowrap"
-style="left:0%; transform: translateX(calc(-50% + 10px));">0%</div>
-<div id="timeline-nodes" class="relative w-full flex justify-between items-center"></div>
-</div>
-</div>
+      <!-- Frise -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-700 mb-6 text-center">Frise de Constance</h3>
+        <div id="timeline-container" class="relative w-full h-16 flex items-center px-2">
+          <div class="absolute w-full h-1 bg-slate-200 rounded-full left-0"></div>
+          <div id="timeline-progress" class="absolute h-1 bg-slate-700 rounded-full left-0 transition-all duration-1000 ease-linear"></div>
+          <div id="timeline-nodes" class="relative w-full flex justify-between items-center px-1"></div>
+        </div>
+        <!-- POURCENTAGE STATIQUE (ne bouge plus) -->
+        <div class="mt-3 text-center">
+          <span id="timeline-percentage"
+                class="inline-block max-w-[92%] bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded-md align-middle">
+            0% vers 1 Jour
+          </span>
+        </div>
+      </div>
 
-<!-- Reset chrono -->
-<div class="text-center mt-12">
-<button id="resetChronoBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200 text-sm">
-<i class="fas fa-undo mr-2"></i>Réinitialiser le Parcours
-</button>
-</div>
-</div>
+      <!-- Reset chrono -->
+      <div class="text-center mt-10">
+        <button id="resetChronoBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200 text-sm">
+          <i class="fas fa-undo mr-2"></i>Réinitialiser le Parcours
+        </button>
+      </div>
+    </div>
 
-<!-- Citation statique -->
-<footer class="my-8 text-center">
-<p class="text-xl italic text-slate-600">"Comment rendre fiers tes proches si tu n'es pas d'abord fier de toi-même ?"</p>
-</footer>
+    <!-- Citation statique -->
+    <footer class="my-8 text-center">
+      <p class="text-xl italic text-slate-600">"Comment rendre fiers tes proches si tu n'es pas d'abord fier de toi-même ?"</p>
+    </footer>
 
-<!-- Habitudes -->
-<div class="bg-white rounded-xl shadow-lg p-6">
-<div class="flex justify-between items-center mb-1">
-<h2 class="text-2xl font-semibold text-slate-800">Mes Habitudes Quotidiennes</h2>
-<button id="resetTasksBtn" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition duration-200 text-sm">
-<i class="fas fa-sync-alt mr-2"></i>Nouvelle journée
-</button>
-</div>
-<p class="text-sm text-slate-500 mb-6 italic">Coche tes actions pour construire la discipline. Tu peux modifier/ajouter/supprimer quand tu veux.</p>
-<ul id="taskList" class="space-y-3"></ul>
+    <!-- Habitudes -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="flex justify-between items-center mb-1">
+        <h2 class="text-2xl font-semibold text-slate-800">Mes Habitudes Quotidiennes</h2>
+        <button id="resetTasksBtn" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition duration-200 text-sm">
+          <i class="fas fa-sync-alt mr-2"></i>Nouvelle journée
+        </button>
+      </div>
+      <p class="text-sm text-slate-500 mb-6 italic">Coche tes actions pour construire la discipline. Tu peux modifier/ajouter/supprimer quand tu veux.</p>
+      <ul id="taskList" class="space-y-3"></ul>
 
-<div class="mt-6 pt-6 border-t border-slate-200">
-<div class="flex flex-col sm:flex-row gap-2">
-<input type="text" id="newTaskInput" placeholder="Ajouter une nouvelle habitude..." class="flex-grow p-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-700 transition">
-<button id="addTaskBtn" class="w-full sm:w-auto px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-900 transition duration-200 shadow-sm">Ajouter</button>
-</div>
-</div>
-</div>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="text" id="newTaskInput" placeholder="Ajouter une nouvelle habitude..." class="flex-grow p-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-700 transition">
+          <button id="addTaskBtn" class="w-full sm:w-auto px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-900 transition duration-200 shadow-sm">Ajouter</button>
+        </div>
+      </div>
+    </div>
 
-<!-- Citation dynamique -->
-<div class="mt-12 text-center border-t border-slate-300 pt-8">
-<div id="dynamic-quote-container" class="min-h-[150px] flex flex-col justify-center">
-<div>
-<p id="quote-text" class="text-xl italic text-slate-700"></p>
-<p id="quote-author" class="text-md text-slate-500 mt-2"></p>
-</div>
-<div class="w-24 h-1 bg-slate-200 rounded-full mx-auto mt-4 overflow-hidden">
-<div id="quote-progress-bar" class="h-1 bg-slate-700 rounded-full"></div>
-</div>
-</div>
-</div>
+    <!-- Citation dynamique -->
+    <div class="mt-12 text-center border-t border-slate-300 pt-8">
+      <div id="dynamic-quote-container" class="min-h-[150px] flex flex-col justify-center">
+        <div>
+          <p id="quote-text" class="text-xl italic text-slate-700"></p>
+          <p id="quote-author" class="text-md text-slate-500 mt-2"></p>
+        </div>
+        <div class="w-24 h-1 bg-slate-200 rounded-full mx-auto mt-4 overflow-hidden">
+          <div id="quote-progress-bar" class="h-1 bg-slate-700 rounded-full"></div>
+        </div>
+      </div>
+    </div>
 
-<!-- Philosophie (texte fourni) -->
-<div class="bg-white rounded-xl shadow-lg p-6 mt-12">
-<h2 class="text-2xl font-semibold text-slate-800 mb-4 text-center brand-font">La Philosophie de cet Espace</h2>
-<div class="text-slate-600 space-y-4 text-center max-w-2xl mx-auto">
-<p>Ce compteur n'est pas qu'un simple chronomètre. C'est le témoin silencieux de votre engagement envers vous-même. Pour certains, il symbolise les jours sans une addiction. Pour d'autres, il marque le début d'une nouvelle discipline, d'un nouveau départ, ou la poursuite d'un rêve longtemps oublié. La signification vous appartient.</p>
-<p>Cet espace a été créé avec une conviction simple : le changement se construit avec différents outils. Le <b>Chrono</b> mesure votre engagement sur le long terme. Les <b>Habitudes Quotidiennes</b> sont les fondations : elles forgent votre discipline et restaurent votre confiance jour après jour. Le <b>Défi du Jour</b>, lui, est l'étincelle qui vous pousse à sortir de votre zone de confort. Ces trois outils sont indépendants, mais leur but est le même : vous aider à visualiser et célébrer chaque pas dans la construction de la meilleure version de vous-même.</p>
-</div>
-</div>
-</div>
+    <!-- Philosophie (texte fourni) -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mt-12">
+      <h2 class="text-2xl font-semibold text-slate-800 mb-4 text-center brand-font">La Philosophie de cet Espace</h2>
+      <div class="text-slate-600 space-y-4 text-center max-w-2xl mx-auto">
+        <p>Ce compteur n'est pas qu'un simple chronomètre. C'est le témoin silencieux de votre engagement envers vous-même. Pour certains, il symbolise les jours sans une addiction. Pour d'autres, il marque le début d'une nouvelle discipline, d'un nouveau départ, ou la poursuite d'un rêve longtemps oublié. La signification vous appartient.</p>
+        <p>Cet espace a été créé avec une conviction simple : le changement se construit avec différents outils. Le <b>Chrono</b> mesure votre engagement sur le long terme. Les <b>Habitudes Quotidiennes</b> sont les fondations : elles forgent votre discipline et restaurent votre confiance jour après jour. Le <b>Défi du Jour</b>, lui, est l'étincelle qui vous pousse à sortir de votre zone de confort. Ces trois outils sont indépendants, mais leur but est le même : vous aider à visualiser et célébrer chaque pas dans la construction de la meilleure version de vous-même.</p>
+      </div>
+    </div>
+  </div>
 
-<!-- POP-UP (onboarding) -->
-<div id="onboardingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-overlay opacity-0 pointer-events-none">
-<div class="modal-card hide bg-white w-full max-w-xl mx-4 rounded-2xl shadow-2xl overflow-hidden">
-<div class="bg-slate-900 text-white px-6 py-5">
-<h3 class="text-lg font-semibold brand-font">Bravo — tu as fait le plus compliqué&nbsp;: <span class="underline decoration-white/60">commencer</span>.</h3>
-<p class="text-white/80 text-sm mt-1">Personnalisation en moins de 15 secondes.</p>
-</div>
-<div class="p-6 sm:p-7">
-<label for="name-input" class="block text-sm font-medium text-slate-800">Ton prénom</label>
-<input id="name-input" type="text" placeholder="Ex. Alex"
-class="mt-2 w-full p-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-800">
+  <!-- POP-UP (onboarding) — compacte -->
+  <div id="onboardingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-overlay opacity-0 pointer-events-none">
+    <div class="modal-card hide bg-white w-full max-w-sm sm:max-w-md mx-4 rounded-2xl shadow-2xl overflow-auto"
+         style="max-height: 80vh;">
+      <!-- Bandeau motivant compact -->
+      <div class="bg-slate-900 text-white px-4 py-4">
+        <h3 class="text-base font-semibold brand-font">Bravo — tu as fait le plus compliqué : <span class="underline decoration-white/60">commencer</span>.</h3>
+        <p class="text-white/80 text-xs mt-1">Personnalisation rapide.</p>
+      </div>
+      <!-- Corps compact -->
+      <div class="p-4 sm:p-5">
+        <label for="name-input" class="block text-xs font-medium text-slate-800">Ton prénom</label>
+        <input id="name-input" type="text" placeholder="Ex. Alex"
+               class="mt-1 w-full p-2.5 text-sm border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-800">
 
-<div class="mt-6 flex items-baseline justify-between">
-<p class="text-sm font-medium text-slate-800">Choisis <b>2 à 3</b> habitudes de départ</p>
-<span id="selectCounter" class="text-xs text-slate-500 select-counter">0/3</span>
-</div>
+        <div class="mt-4 flex items-baseline justify-between">
+          <p class="text-xs font-medium text-slate-800">Choisis <b>2 à 3</b> habitudes</p>
+          <span id="selectCounter" class="text-[11px] text-slate-500 select-counter">0/3</span>
+        </div>
 
-<div id="habitChoices" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-<!-- chips via JS -->
-</div>
+        <!-- Chips plus petites, côte à côte -->
+        <div id="habitChoices" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- injectées via JS -->
+        </div>
 
-<p class="text-xs text-slate-500 mt-3 italic">Tu pourras les modifier, en ajouter ou en supprimer ensuite.</p>
-<div id="errorMsg" class="hidden mt-3 text-sm text-red-600">Renseigne ton prénom et choisis 2 à 3 habitudes.</div>
+        <p class="text-[11px] text-slate-500 mt-2 italic">Tu pourras modifier/ajouter/supprimer ensuite.</p>
+        <div id="errorMsg" class="hidden mt-2 text-xs text-red-600">Renseigne ton prénom et choisis 2 à 3 habitudes.</div>
 
-<button id="startBtn" class="mt-6 w-full px-6 py-3 bg-slate-900 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
-Enregistrer et commencer
-</button>
-</div>
-</div>
-</div>
+        <button id="startBtn" class="mt-4 w-full px-4 py-2.5 text-sm bg-slate-900 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+          Enregistrer et commencer
+        </button>
+      </div>
+    </div>
+  </div>
 
-<!-- Modale Défi (optionnelle, sobre) -->
-<div id="challengeModal" class="fixed inset-0 bg-black/50 items-center justify-center p-4 z-50 hidden modal-overlay opacity-0">
-<div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-center transform scale-95 modal-content">
-<h2 class="text-2xl font-bold text-slate-800 brand-font">Votre Défi du Jour</h2>
-<p id="challengeText" class="text-slate-600 mt-4 mb-6 text-lg"></p>
-<button id="completeChallengeBtn" class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 shadow-sm">
-<i class="fas fa-check mr-2"></i> J'ai réussi !
-</button>
-<div class="mt-4">
-<p class="text-sm text-slate-500">Série de constance : <span id="streakCounter" class="font-bold text-slate-700">0</span> jours</p>
-<p class="text-xs text-slate-400 mt-1">Temps restant aujourd’hui : <span id="challengeTimer" class="font-bold"></span></p>
-</div>
-<button id="closeChallengeBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600">
-<i class="fas fa-times fa-lg"></i>
-</button>
-</div>
-</div>
-<script>
-(function(){
-"use strict";
-/* ---------- Utils ---------- */
-const $ = (s, c=document) => c.querySelector(s);
-const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
-const ls = {
-get:(k, fb=null)=>{ const v=localStorage.getItem(k); if(v==null) return fb; try{return JSON.parse(v)}catch{return v} },
-set:(k, v)=>localStorage.setItem(k, typeof v==='string'?v:JSON.stringify(v)),
-del:(k)=>localStorage.removeItem(k)
-};
+  <!-- Modale Défi (optionnelle) -->
+  <div id="challengeModal" class="fixed inset-0 bg-black/50 items-center justify-center p-4 z-50 hidden modal-overlay opacity-0">
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-center transform scale-95 modal-content">
+      <h2 class="text-2xl font-bold text-slate-800 brand-font">Votre Défi du Jour</h2>
+      <p id="challengeText" class="text-slate-600 mt-4 mb-6 text-lg"></p>
+      <button id="completeChallengeBtn" class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 shadow-sm">
+        <i class="fas fa-check mr-2"></i> J'ai réussi !
+      </button>
+      <div class="mt-4">
+        <p class="text-sm text-slate-500">Série de constance : <span id="streakCounter" class="font-bold text-slate-700">0</span> jours</p>
+        <p class="text-xs text-slate-400 mt-1">Temps restant aujourd’hui : <span id="challengeTimer" class="font-bold"></span></p>
+      </div>
+      <button id="closeChallengeBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600">
+        <i class="fas fa-times fa-lg"></i>
+      </button>
+    </div>
+  </div>
 
-/* ---------- DOM ---------- */
-const mainTitle = $('#main-title');
-const taskList = $('#taskList');
-const newTaskInput = $('#newTaskInput');
-const addTaskBtn = $('#addTaskBtn');
-const resetTasksBtn = $('#resetTasksBtn');
+  <script>
+  (function(){
+    "use strict";
+    /* ---------- Utils ---------- */
+    const $ = (s, c=document) => c.querySelector(s);
+    const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+    const ls = {
+      get:(k, fb=null)=>{ const v=localStorage.getItem(k); if(v==null) return fb; try{return JSON.parse(v)}catch{return v} },
+      set:(k, v)=>localStorage.setItem(k, typeof v==='string'?v:JSON.stringify(v)),
+      del:(k)=>localStorage.removeItem(k)
+    };
 
-const monthsEl=$('#months'), daysEl=$('#days'), hoursEl=$('#hours'), minutesEl=$('#minutes'), secondsEl=$('#seconds');
-const resetChronoBtn = $('#resetChronoBtn');
+    /* ---------- DOM ---------- */
+    const mainTitle = $('#main-title');
+    const taskList = $('#taskList');
+    const newTaskInput = $('#newTaskInput');
+    const addTaskBtn = $('#addTaskBtn');
+    const resetTasksBtn = $('#resetTasksBtn');
 
-const timelineNodesContainer = $('#timeline-nodes');
-const timelineProgress = $('#timeline-progress');
-const timelinePercentage = $('#timeline-percentage');
+    const monthsEl=$('#months'), daysEl=$('#days'), hoursEl=$('#hours'), minutesEl=$('#minutes'), secondsEl=$('#seconds');
+    const resetChronoBtn = $('#resetChronoBtn');
 
-const quoteTextEl = $('#quote-text');
-const quoteAuthorEl = $('#quote-author');
-const quoteProgressBar = $('#quote-progress-bar');
+    const timelineContainer = $('#timeline-container');
+    const timelineNodesContainer = $('#timeline-nodes');
+    const timelineProgress = $('#timeline-progress');
+    const timelinePercentage = $('#timeline-percentage');
 
-const openChallengeBtn = $('#openChallengeBtn');
-const challengeModal = $('#challengeModal');
-const challengeText = $('#challengeText');
-const completeChallengeBtn = $('#completeChallengeBtn');
-const streakCounter = $('#streakCounter');
-const closeChallengeBtn = $('#closeChallengeBtn');
-const challengeTimerEl = $('#challengeTimer');
+    const quoteTextEl = $('#quote-text');
+    const quoteAuthorEl = $('#quote-author');
+    const quoteProgressBar = $('#quote-progress-bar');
 
-const onboardingModal = $('#onboardingModal');
-const modalCard = onboardingModal ? onboardingModal.querySelector('.modal-card') : null;
-const nameInput = $('#name-input');
-const habitChoices = $('#habitChoices');
-const startBtn = $('#startBtn');
-const errorMsg = $('#errorMsg');
-const selectCounter = $('#selectCounter');
+    const openChallengeBtn = $('#openChallengeBtn');
+    const challengeModal = $('#challengeModal');
+    const challengeText = $('#challengeText');
+    const completeChallengeBtn = $('#completeChallengeBtn');
+    const streakCounter = $('#streakCounter');
+    const closeChallengeBtn = $('#closeChallengeBtn');
+    const challengeTimerEl = $('#challengeTimer');
 
-/* ---------- État ---------- */
-let tasks = [];
-const DAY=86400000, WEEK=DAY*7, MONTH=DAY*30.4375, YEAR=DAY*365.25;
-let startTime = Number(ls.get('chronoStartTime'));
-if (!startTime || Number.isNaN(startTime)) { startTime = Date.now(); ls.set('chronoStartTime', String(startTime)); }
+    const onboardingModal = $('#onboardingModal');
+    const modalCard = onboardingModal ? onboardingModal.querySelector('.modal-card') : null;
+    const nameInput = $('#name-input');
+    const habitChoices = $('#habitChoices');
+    const startBtn = $('#startBtn');
+    const errorMsg = $('#errorMsg');
+    const selectCounter = $('#selectCounter');
 
-/* ---------- Données ---------- */
-const HABITS_PRESET = [
-"Boire de l'eau",
-"Méditer 10 minutes",
-"Faire son lit",
-"Ranger sa chambre",
-"Lire 10 pages",
-"Marcher 15 min",
-"Apprendre une langue"
-];
+    /* ---------- État ---------- */
+    let tasks = [];
+    const DAY=86400000, WEEK=DAY*7, MONTH=DAY*30.4375, YEAR=DAY*365.25;
+    let startTime = Number(ls.get('chronoStartTime'));
+    if (!startTime || Number.isNaN(startTime)) { startTime = Date.now(); ls.set('chronoStartTime', String(startTime)); }
 
-const objectives = [
-{ label:'1 Jour', duration: DAY },
-{ label:'1 Sem.', duration: WEEK },
-{ label:'2 Sem.', duration: WEEK*2 },
-{ label:'3 Sem.', duration: WEEK*3 },
-{ label:'1 Mois', duration: MONTH },
-{ label:'6 Mois', duration: MONTH*6 },
-{ label:'1 An', duration: YEAR }
-];
+    /* ---------- Données ---------- */
+    const HABITS_PRESET = [
+      "Boire de l'eau",
+      "Méditer 10 minutes",
+      "Faire son lit",
+      "Ranger sa chambre",
+      "Lire 10 pages",
+      "Marcher 15 min",
+      "Apprendre une langue"
+    ];
+    const objectives = [
+      { label:'1 Jour', duration: DAY },
+      { label:'1 Sem.', duration: WEEK },
+      { label:'2 Sem.', duration: WEEK*2 },
+      { label:'3 Sem.', duration: WEEK*3 },
+      { label:'1 Mois', duration: MONTH },
+      { label:'6 Mois', duration: MONTH*6 },
+      { label:'1 An',   duration: YEAR }
+    ];
+    const quotes = [
+      { text: "Connais-toi toi-même.", author: "Socrate" },
+      { text: "La discipline est le pont entre les objectifs et leur réalisation.", author: "Jim Rohn" },
+      { text: "Vous devez être le changement que vous voulez voir dans le monde.", author: "Mahatma Gandhi" }
+    ];
+    const challenges = [
+      "Fais ton max de pompes.", "Tiens la planche le plus longtemps possible.",
+      "Bois 2 litres d'eau aujourd'hui.", "Écris 3 choses positives de la journée."
+    ];
 
-const quotes = [
-{ text: "Connais-toi toi-même.", author: "Socrate" },
-{ text: "La discipline est le pont entre les objectifs et leur réalisation.", author: "Jim Rohn" },
-{ text: "Vous devez être le changement que vous voulez voir dans le monde.", author: "Mahatma Gandhi" }
-];
+    /* ---------- Onboarding ---------- */
+    function renderHabitChoices(){
+      if(!habitChoices) return;
+      habitChoices.innerHTML='';
+      HABITS_PRESET.forEach(text=>{
+        const btn=document.createElement('button');
+        btn.type='button'; btn.className='chip'; btn.setAttribute('aria-pressed','false');
+        btn.innerHTML=`<span class="tick"><i class="fas fa-check"></i></span><span class="label">${text}</span>`;
+        btn.dataset.selected='false';
+        btn.addEventListener('click',()=>{
+          const selectedCount = $$('#habitChoices .chip').filter(c=>c.dataset.selected==='true').length;
+          const isSelected = btn.dataset.selected==='true';
+          if(!isSelected && selectedCount>=3) return;
+          btn.dataset.selected=String(!isSelected);
+          btn.classList.toggle('selected', !isSelected);
+          btn.setAttribute('aria-pressed', String(!isSelected));
+          updateSelectCounter();
+          validateOnboarding();
+        });
+        habitChoices.appendChild(btn);
+      });
+      updateSelectCounter();
+    }
+    function updateSelectCounter(){
+      if(!selectCounter) return;
+      const count = $$('#habitChoices .chip').filter(c=>c.dataset.selected==='true').length;
+      selectCounter.textContent = `${count}/3`;
+    }
+    function showOnboarding(){
+      if(!onboardingModal) return;
+      onboardingModal.classList.remove('pointer-events-none');
+      onboardingModal.style.opacity='1';
+      modalCard.classList.remove('hide'); modalCard.classList.add('show');
+    }
+    function hideOnboarding(){
+      if(!onboardingModal) return;
+      onboardingModal.style.opacity='0';
+      modalCard.classList.remove('show'); modalCard.classList.add('hide');
+      setTimeout(()=>onboardingModal.classList.add('pointer-events-none'), 200);
+    }
+    function validateOnboarding(){
+      if(!nameInput) return {nameOk:true, habitsOk:true, selected:[]};
+      const nameOk = (nameInput.value||'').trim().length>0;
+      const selected = $$('#habitChoices .chip').filter(c=>c.dataset.selected==='true').map(c=>c.querySelector('.label').textContent);
+      const habitsOk = selected.length>=2 && selected.length<=3;
+      if(startBtn) startBtn.disabled = !(nameOk && habitsOk);
+      if(errorMsg && nameOk && habitsOk) errorMsg.classList.add('hidden');
+      return {nameOk, habitsOk, selected};
+    }
+    if(nameInput) nameInput.addEventListener('input', validateOnboarding);
+    if(startBtn) startBtn.addEventListener('click', ()=>{
+      const {nameOk, habitsOk, selected} = validateOnboarding();
+      if(!nameOk || !habitsOk){ if(errorMsg) errorMsg.classList.remove('hidden'); return; }
+      const name = nameInput.value.trim();
+      ls.set('userName', name);
+      const mapped = selected.map(t=>({text:t, checked:false}));
+      const existing = ls.get('tasks', []);
+      if(!existing || !Array.isArray(existing) || existing.length===0){ ls.set('tasks', mapped); }
+      loadUserData(); renderTasks(); hideOnboarding();
+    });
 
-const challenges = [
-"Fais ton max de pompes.", "Tiens la planche le plus longtemps possible.",
-"Bois 2 litres d'eau aujourd'hui.", "Écris 3 choses positives de la journée."
-];
+    /* ---------- Tâches ---------- */
+    function loadUserData(){
+      const userName = ls.get('userName','');
+      if(userName && typeof userName==='string' && userName.trim().toLowerCase()!=='vous'){
+        mainTitle.textContent = `La meilleure version de ${userName}`;
+      }else{ mainTitle.textContent = 'La meilleure version de toi'; }
+      const savedTasks = ls.get('tasks', []);
+      tasks = Array.isArray(savedTasks) ? savedTasks : [];
+    }
+    function saveTasks(){ ls.set('tasks', tasks); }
+    function renderTasks(){
+      taskList.innerHTML='';
+      if(!tasks.length){
+        taskList.innerHTML='<p class="text-slate-500 text-center py-4">Aucune habitude pour le moment. Ajoute-en une 👇</p>';
+        return;
+      }
+      tasks.forEach((task,i)=>{
+        const li=document.createElement('li');
+        li.className=`task-item flex items-center bg-slate-50 p-3 rounded-lg transition duration-200 hover:bg-slate-100 ${task.checked?'opacity-60':''}`;
+        li.innerHTML=`
+          <input type="checkbox" id="task-${i}" class="h-5 w-5 rounded border-slate-300 text-slate-700 focus:ring-slate-800 cursor-pointer" ${task.checked?'checked':''}>
+          <label for="task-${i}" class="ml-3 flex-grow text-slate-700 cursor-pointer ${task.checked?'line-through text-slate-400':''}">${task.text}</label>
+          <button class="delete-btn text-red-500 ml-2 hover:text-red-700 transition-colors duration-200" aria-label="Supprimer la tâche" data-index="${i}">
+            <i class="fas fa-trash-alt"></i>
+          </button>`;
+        taskList.appendChild(li);
+        li.querySelector('input[type="checkbox"]').addEventListener('change',(e)=>{
+          tasks[i].checked = e.target.checked; saveTasks(); renderTasks();
+        });
+        li.querySelector('.delete-btn').addEventListener('click',()=>{ tasks.splice(i,1); saveTasks(); renderTasks(); });
+      });
+    }
+    if(addTaskBtn) addTaskBtn.addEventListener('click',()=>{
+      const t=(newTaskInput.value||'').trim(); if(!t) return;
+      tasks.push({text:t, checked:false}); newTaskInput.value=''; saveTasks(); renderTasks();
+    });
+    if(newTaskInput) newTaskInput.addEventListener('keypress',(e)=>{ if(e.key==='Enter') addTaskBtn.click(); });
+    if(resetTasksBtn) resetTasksBtn.addEventListener('click',()=>{ tasks.forEach(t=>t.checked=false); saveTasks(); renderTasks(); });
 
-/* ---------- Onboarding ---------- */
-function renderHabitChoices(){
-if(!habitChoices) return;
-habitChoices.innerHTML='';
-HABITS_PRESET.forEach(text=>{
-const btn=document.createElement('button');
-btn.type='button'; btn.className='chip'; btn.setAttribute('aria-pressed','false');
-btn.innerHTML=`<span class="tick"><i class="fas fa-check"></i></span><span class="label">${text}</span>`;
-btn.dataset.selected='false';
-btn.addEventListener('click',()=>{
-const selectedCount = $$('#habitChoices .chip').filter(c=>c.dataset.selected==='true').length;
-const isSelected = btn.dataset.selected==='true';
-if(!isSelected && selectedCount>=3) return;
-btn.dataset.selected=String(!isSelected);
-btn.classList.toggle('selected', !isSelected);
-btn.setAttribute('aria-pressed', String(!isSelected));
-updateSelectCounter();
-validateOnboarding();
-});
-habitChoices.appendChild(btn);
-});
-updateSelectCounter();
-}
-function updateSelectCounter(){
-if(!selectCounter) return;
-const count = $$('#habitChoices .chip').filter(c=>c.dataset.selected==='true').length;
-selectCounter.textContent = `${count}/3`;
-}
-function showOnboarding(){
-if(!onboardingModal) return;
-onboardingModal.classList.remove('pointer-events-none');
-onboardingModal.style.opacity='1';
-modalCard.classList.remove('hide'); modalCard.classList.add('show');
-}
-function hideOnboarding(){
-if(!onboardingModal) return;
-onboardingModal.style.opacity='0';
-modalCard.classList.remove('show'); modalCard.classList.add('hide');
-setTimeout(()=>onboardingModal.classList.add('pointer-events-none'), 200);
-}
-function validateOnboarding(){
-if(!nameInput) return {nameOk:true, habitsOk:true, selected:[]};
-const nameOk = (nameInput.value||'').trim().length>0;
-const selected = $$('#habitChoices .chip').filter(c=>c.dataset.selected==='true').map(c=>c.querySelector('.label').textContent);
-const habitsOk = selected.length>=2 && selected.length<=3;
-if(startBtn) startBtn.disabled = !(nameOk && habitsOk);
-if(errorMsg && nameOk && habitsOk) errorMsg.classList.add('hidden');
-return {nameOk, habitsOk, selected};
-}
-if(nameInput) nameInput.addEventListener('input', validateOnboarding);
-if(startBtn) startBtn.addEventListener('click', ()=>{
-const {nameOk, habitsOk, selected} = validateOnboarding();
-if(!nameOk || !habitsOk){ if(errorMsg) errorMsg.classList.remove('hidden'); return; }
-const name = nameInput.value.trim();
-ls.set('userName', name);
-const mapped = selected.map(t=>({text:t, checked:false}));
-const existing = ls.get('tasks', []);
-if(!existing || !Array.isArray(existing) || existing.length===0){ ls.set('tasks', mapped); }
-loadUserData(); renderTasks(); hideOnboarding();
-});
+    /* ---------- Chrono & Frise ---------- */
+    function updateChrono(){
+      const now=Date.now(), elapsed=now-startTime;
+      const avgMonth=30.4375, totalDays=elapsed/86400000;
+      const months=Math.floor(totalDays/avgMonth);
+      const days=Math.floor(totalDays%avgMonth);
+      const hours=Math.floor((elapsed%86400000)/3600000);
+      const mins=Math.floor((elapsed%3600000)/60000);
+      const secs=Math.floor((elapsed%60000)/1000);
+      monthsEl.textContent=months; daysEl.textContent=days;
+      hoursEl.textContent=String(hours).padStart(2,'0');
+      minutesEl.textContent=String(mins).padStart(2,'0');
+      secondsEl.textContent=String(secs).padStart(2,'0');
+      updateTimeline(elapsed);
+    }
+    if(resetChronoBtn) resetChronoBtn.addEventListener('click',()=>{ startTime=Date.now(); ls.set('chronoStartTime', String(startTime)); updateChrono(); });
 
-/* ---------- Tâches ---------- */
-function loadUserData(){
-const userName = ls.get('userName','');
-if(userName && typeof userName==='string' && userName.trim().toLowerCase()!=='vous'){
-mainTitle.textContent = `La meilleure version de ${userName}`;
-}else{ mainTitle.textContent = 'La meilleure version de toi'; }
-const savedTasks = ls.get('tasks', []);
-tasks = Array.isArray(savedTasks) ? savedTasks : [];
-}
-function saveTasks(){ ls.set('tasks', tasks); }
-function renderTasks(){
-taskList.innerHTML='';
-if(!tasks.length){
-taskList.innerHTML='<p class="text-slate-500 text-center py-4">Aucune habitude pour le moment. Ajoute-en une 👇</p>';
-return;
-}
-tasks.forEach((task,i)=>{
-const li=document.createElement('li');
-li.className=`task-item flex items-center bg-slate-50 p-3 rounded-lg transition duration-200 hover:bg-slate-100 ${task.checked?'opacity-60':''}`;
-li.innerHTML=`
-<input type="checkbox" id="task-${i}" class="h-5 w-5 rounded border-slate-300 text-slate-700 focus:ring-slate-800 cursor-pointer" ${task.checked?'checked':''}>
-<label for="task-${i}" class="ml-3 flex-grow text-slate-700 cursor-pointer ${task.checked?'line-through text-slate-400':''}">${task.text}</label>
-<button class="delete-btn text-red-500 ml-2 hover:text-red-700 transition-colors duration-200" aria-label="Supprimer la tâche" data-index="${i}">
-<i class="fas fa-trash-alt"></i>
-</button>`;
-taskList.appendChild(li);
-li.querySelector('input[type="checkbox"]').addEventListener('change',(e)=>{
-tasks[i].checked = e.target.checked; saveTasks(); renderTasks();
-});
-li.querySelector('.delete-btn').addEventListener('click',()=>{ tasks.splice(i,1); saveTasks(); renderTasks(); });
-});
-}
-if(addTaskBtn) addTaskBtn.addEventListener('click',()=>{
-const t=(newTaskInput.value||'').trim(); if(!t) return;
-tasks.push({text:t, checked:false}); newTaskInput.value=''; saveTasks(); renderTasks();
-});
-if(newTaskInput) newTaskInput.addEventListener('keypress',(e)=>{ if(e.key==='Enter') addTaskBtn.click(); });
-if(resetTasksBtn) resetTasksBtn.addEventListener('click',()=>{ tasks.forEach(t=>t.checked=false); saveTasks(); renderTasks(); });
+    function renderTimelineStructure(){
+      timelineNodesContainer.innerHTML='';
+      objectives.forEach((obj,i)=>{
+        const node=document.createElement('div');
+        node.className='relative flex flex-col items-center';
+        const labelPos = i%2===0 ? '-bottom-7' : '-top-7';
+        node.innerHTML=`
+          <div id="timeline-node-${i}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div>
+          <span class="absolute ${labelPos} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>`;
+        timelineNodesContainer.appendChild(node);
+      });
+    }
 
-/* ---------- Chrono & Frise ---------- */
-function updateChrono(){
-const now=Date.now(), elapsed=now-startTime;
-const avgMonth=30.4375, totalDays=elapsed/86400000;
-const months=Math.floor(totalDays/avgMonth);
-const days=Math.floor(totalDays%avgMonth);
-const hours=Math.floor((elapsed%86400000)/3600000);
-const mins=Math.floor((elapsed%3600000)/60000);
-const secs=Math.floor((elapsed%60000)/1000);
-monthsEl.textContent=months; daysEl.textContent=days;
-hoursEl.textContent=String(hours).padStart(2,'0');
-minutesEl.textContent=String(mins).padStart(2,'0');
-secondsEl.textContent=String(secs).padStart(2,'0');
-updateTimeline(elapsed);
-}
-if(resetChronoBtn) resetChronoBtn.addEventListener('click',()=>{ startTime=Date.now(); ls.set('chronoStartTime', String(startTime)); updateChrono(); });
+    // Pourcentage statique : mis à jour en texte UNIQUEMENT (ne bouge pas)
+    function updateTimeline(elapsed){
+      const yearDur=objectives[objectives.length-1].duration;
+      const pct=Math.min(100,(elapsed/yearDur)*100);
+      timelineProgress.style.width=`${pct}%`;
 
-function renderTimelineStructure(){
-timelineNodesContainer.innerHTML='';
-objectives.forEach((obj,i)=>{
-const node=document.createElement('div');
-node.className='relative flex flex-col items-center';
-const labelPos = i%2===0 ? '-bottom-7' : '-top-7';
-node.innerHTML=`
-<div id="timeline-node-${i}" class="w-3 h-3 bg-slate-200 rounded-full border-2 border-slate-200 transition-colors duration-500 z-10"></div>
-<span class="absolute ${labelPos} text-xs text-slate-500 whitespace-nowrap">${obj.label}</span>`;
-timelineNodesContainer.appendChild(node);
-});
-}
-function updateTimeline(elapsed){
-const yearDur=objectives[objectives.length-1].duration;
-const pct=Math.min(100,(elapsed/yearDur)*100);
-timelineProgress.style.width=`${pct}%`;
-timelinePercentage.style.left=`${pct}%`;
-timelinePercentage.style.transform='translateX(calc(-50% + 10px))'; // décalage demandé
+      let last=0, next=objectives[0];
+      for(let i=0;i<objectives.length;i++){
+        const node=document.getElementById(`timeline-node-${i}`);
+        if(elapsed>=objectives[i].duration){
+          last=objectives[i].duration; if(i+1<objectives.length) next=objectives[i+1];
+          if(node){ node.classList.remove('bg-slate-200'); node.classList.add('bg-slate-700'); }
+        }else{
+          if(node){ node.classList.add('bg-slate-200'); node.classList.remove('bg-slate-700'); }
+        }
+      }
+      const segTot=next.duration-last, segElapsed=Math.max(0, elapsed-last);
+      const segPct=Math.min(100,(segElapsed/segTot)*100);
+      timelinePercentage.textContent = `${Math.floor(segPct)}% vers ${next.label}`;
+    }
 
-if(elapsed>=yearDur){
-timelinePercentage.textContent='Complété !';
-objectives.forEach((_,i)=>{ const n=$(`#timeline-node-${i}`); if(n){ n.classList.add('bg-slate-700'); n.classList.remove('bg-slate-200'); } });
-return;
-}
-let last=0, next=objectives[0];
-for(let i=0;i<objectives.length;i++){
-const node=$(`#timeline-node-${i}`);
-if(elapsed>=objectives[i].duration){
-last=objectives[i].duration; if(i+1<objectives.length) next=objectives[i+1];
-if(node){ node.classList.remove('bg-slate-200'); node.classList.add('bg-slate-700'); }
-}else{
-if(node){ node.classList.add('bg-slate-200'); node.classList.remove('bg-slate-700'); }
-}
-}
-const segTot=next.duration-last, segElapsed=Math.max(0, elapsed-last);
-const segPct=Math.min(100,(segElapsed/segTot)*100);
-timelinePercentage.textContent=`${Math.floor(segPct)}% vers ${next.label}`;
-}
+    /* ---------- Citations + barre animée ---------- */
+    function updateQuote(){
+      const i=Math.floor(Math.random()*quotes.length), q=quotes[i];
+      quoteTextEl.textContent=`"${q.text}"`; quoteAuthorEl.textContent=`— ${q.author}`;
+      quoteProgressBar.classList.remove('run-quote'); quoteProgressBar.style.width='0%';
+      void quoteProgressBar.offsetWidth; // reflow
+      quoteProgressBar.classList.add('run-quote');
+    }
 
-/* ---------- Citations + barre animée ---------- */
-function updateQuote(){
-const i=Math.floor(Math.random()*quotes.length), q=quotes[i];
-quoteTextEl.textContent=`"${q.text}"`; quoteAuthorEl.textContent=`— ${q.author}`;
-quoteProgressBar.classList.remove('run-quote'); quoteProgressBar.style.width='0%';
-void quoteProgressBar.offsetWidth; // reflow
-quoteProgressBar.classList.add('run-quote');
-}
+    /* ---------- Défi du jour (optionnel) ---------- */
+    function getTodayDateString(){ return new Date().toISOString().split('T')[0]; }
+    function getChallengeForToday(){ const d=Math.floor(Date.now()/DAY); return challenges[d%challenges.length]; }
+    function updateChallengeTimer(){
+      const now=new Date(), tomorrow=new Date(now); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(0,0,0,0);
+      const diff=Math.max(0, +tomorrow - +now);
+      const h=String(Math.floor((diff%DAY)/(1000*60*60))).padStart(2,'0');
+      const m=String(Math.floor((diff%(1000*60*60))/(1000*60))).padStart(2,'0');
+      const s=String(Math.floor((diff%(1000*60))/1000)).padStart(2,'0');
+      if(challengeTimerEl) challengeTimerEl.textContent=`${h}:${m}:${s}`;
+    }
+    function updateChallengeUI(){
+      const today=getTodayDateString();
+      const data=ls.get('challengeData',{lastCompleted:null, streak:0})||{lastCompleted:null,streak:0};
+      if(challengeText) challengeText.textContent=getChallengeForToday();
+      if(streakCounter) streakCounter.textContent=data.streak||0;
+      const completed=data.lastCompleted===today;
+      if(completeChallengeBtn){
+        completeChallengeBtn.disabled=completed;
+        if(completed){
+          completeChallengeBtn.textContent="Défi du jour accompli !";
+          completeChallengeBtn.classList.add('bg-slate-400');
+          completeChallengeBtn.classList.remove('bg-green-600','hover:bg-green-700');
+        }else{
+          completeChallengeBtn.innerHTML='<i class="fas fa-check mr-2"></i> J\'ai réussi !';
+          completeChallengeBtn.classList.remove('bg-slate-400');
+          completeChallengeBtn.classList.add('bg-green-600','hover:bg-green-700');
+        }
+      }
+    }
+    let challengeInterval=null;
+    if(openChallengeBtn) openChallengeBtn.addEventListener('click', ()=>{
+      updateChallengeUI(); updateChallengeTimer();
+      if(challengeInterval) clearInterval(challengeInterval);
+      challengeInterval=setInterval(updateChallengeTimer,1000);
+      challengeModal.classList.remove('hidden');
+      requestAnimationFrame(()=>{ challengeModal.classList.remove('opacity-0'); $('.modal-content', challengeModal).classList.remove('scale-95'); });
+    });
+    if(closeChallengeBtn) closeChallengeBtn.addEventListener('click', closeChallenge);
+    function closeChallenge(){
+      if(challengeInterval){ clearInterval(challengeInterval); challengeInterval=null; }
+      challengeModal.classList.add('opacity-0'); $('.modal-content', challengeModal).classList.add('scale-95');
+      setTimeout(()=> challengeModal.classList.add('hidden'), 250);
+    }
+    if(completeChallengeBtn) completeChallengeBtn.addEventListener('click', ()=>{
+      const today=getTodayDateString(), yesterday=new Date(Date.now()-DAY).toISOString().split('T')[0];
+      let data=ls.get('challengeData',{lastCompleted:null, streak:0})||{lastCompleted:null,streak:0};
+      if(data.lastCompleted===yesterday) data.streak=(data.streak||0)+1;
+      else if(data.lastCompleted!==today) data.streak=1;
+      data.lastCompleted=today; ls.set('challengeData', data); updateChallengeUI();
+    });
 
-/* ---------- Défi du jour (optionnel) ---------- */
-function getTodayDateString(){ return new Date().toISOString().split('T')[0]; }
-function getChallengeForToday(){ const d=Math.floor(Date.now()/DAY); return challenges[d%challenges.length]; }
-function updateChallengeTimer(){
-const now=new Date(), tomorrow=new Date(now); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(0,0,0,0);
-const diff=Math.max(0, +tomorrow - +now);
-const h=String(Math.floor((diff%DAY)/(1000*60*60))).padStart(2,'0');
-const m=String(Math.floor((diff%(1000*60*60))/(1000*60))).padStart(2,'0');
-const s=String(Math.floor((diff%(1000*60))/1000)).padStart(2,'0');
-if(challengeTimerEl) challengeTimerEl.textContent=`${h}:${m}:${s}`;
-}
-function updateChallengeUI(){
-const today=getTodayDateString();
-const data=ls.get('challengeData',{lastCompleted:null, streak:0})||{lastCompleted:null,streak:0};
-if(challengeText) challengeText.textContent=getChallengeForToday();
-if(streakCounter) streakCounter.textContent=data.streak||0;
-const completed=data.lastCompleted===today;
-if(completeChallengeBtn){
-completeChallengeBtn.disabled=completed;
-if(completed){
-completeChallengeBtn.textContent="Défi du jour accompli !";
-completeChallengeBtn.classList.add('bg-slate-400');
-completeChallengeBtn.classList.remove('bg-green-600','hover:bg-green-700');
-}else{
-completeChallengeBtn.innerHTML='<i class="fas fa-check mr-2"></i> J\'ai réussi !';
-completeChallengeBtn.classList.remove('bg-slate-400');
-completeChallengeBtn.classList.add('bg-green-600','hover:bg-green-700');
-}
-}
-}
-let challengeInterval=null;
-if(openChallengeBtn) openChallengeBtn.addEventListener('click', ()=>{
-updateChallengeUI(); updateChallengeTimer();
-if(challengeInterval) clearInterval(challengeInterval);
-challengeInterval=setInterval(updateChallengeTimer,1000);
-challengeModal.classList.remove('hidden');
-requestAnimationFrame(()=>{ challengeModal.classList.remove('opacity-0'); $('.modal-content', challengeModal).classList.remove('scale-95'); });
-});
-if(closeChallengeBtn) closeChallengeBtn.addEventListener('click', closeChallenge);
-function closeChallenge(){
-if(challengeInterval){ clearInterval(challengeInterval); challengeInterval=null; }
-challengeModal.classList.add('opacity-0'); $('.modal-content', challengeModal).classList.add('scale-95');
-setTimeout(()=>challengeModal.classList.add('hidden'), 250);
-}
-if(completeChallengeBtn) completeChallengeBtn.addEventListener('click', ()=>{
-const today=getTodayDateString(), yesterday=new Date(Date.now()-DAY).toISOString().split('T')[0];
-let data=ls.get('challengeData',{lastCompleted:null, streak:0})||{lastCompleted:null,streak:0};
-if(data.lastCompleted===yesterday) data.streak=(data.streak||0)+1;
-else if(data.lastCompleted!==today) data.streak=1;
-data.lastCompleted=today; ls.set('challengeData', data); updateChallengeUI();
-});
+    /* ---------- Init ---------- */
+    function initialize(){
+      loadUserData(); renderTasks(); renderTimelineStructure(); updateQuote(); updateChrono();
+      setInterval(updateChrono, 1000);
+      setInterval(updateQuote, 10000);
 
-/* ---------- Init ---------- */
-function initialize(){
-loadUserData(); renderTasks(); renderTimelineStructure(); updateQuote(); updateChrono();
-setInterval(updateChrono, 1000);
-setInterval(updateQuote, 10000); // 10s = durée de l'animation
-// Affiche la pop-up si première visite
-const hasName=!!ls.get('userName',''); const hasTasks=Array.isArray(ls.get('tasks',[])) && ls.get('tasks',[]).length>0;
-if(!hasName || !hasTasks){ renderHabitChoices(); showOnboarding(); validateOnboarding(); }
-}
-initialize();
+      // Afficher la pop-up si première visite
+      const hasName=!!ls.get('userName',''); const hasTasks=Array.isArray(ls.get('tasks',[])) && ls.get('tasks',[]).length>0;
+      if(!hasName || !hasTasks){ renderHabitChoices(); showOnboarding(); validateOnboarding(); }
+    }
+    initialize();
 
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>
